@@ -2,6 +2,7 @@
 
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import { sampleStudent } from "@/data/student";
 
 export type Language = "en" | "hi";
 export type PreferenceChoice = "accepted" | "rejected" | "pending";
@@ -99,7 +100,7 @@ function createInitialData(): AppData {
     language: "en",
     calmMode: false,
     dyslexicFont: false,
-    audioFirst: false,
+    audioFirst: true,
     onboardingDone: false,
     onboardingConsent: { profile: false, games: false, guardianNoticeRead: false },
     profile: {
@@ -150,27 +151,32 @@ export const useAppStore = create<AppState>()(
       setOnboardingConsent: (consent) =>
         set((state) => ({ onboardingConsent: { ...state.onboardingConsent, ...consent } })),
       loadDemoProfile: () =>
-        set({
+        set((state) => ({
+          ...createInitialData(),
+          language: state.language,
+          calmMode: state.calmMode,
+          dyslexicFont: state.dyslexicFont,
+          audioFirst: state.audioFirst,
           profile: {
-            name: "Asha",
-            village: "Khejroli",
-            district: "Jaipur",
-            preferredLanguage: "Hindi",
+            name: sampleStudent.name,
+            village: sampleStudent.village,
+            district: sampleStudent.district,
+            preferredLanguage: sampleStudent.preferredLanguage,
             interests: ["hands-on making", "helping people", "creative activities"],
             skills: [],
             enjoys: ["repairing things", "drawing", "helping at home"],
             goals: ["finish Class 10", "explore vocational training", "earn safely when ready"],
             constraints: {
-              location: "Khejroli, Jaipur, Rajasthan",
-              budget: "low",
-              transport: "bus",
-              device: "low-end Android phone",
-              connectivity: "patchy mobile data",
+              location: `${sampleStudent.village}, ${sampleStudent.district}, ${sampleStudent.state}`,
+              budget: sampleStudent.budget,
+              transport: sampleStudent.transport,
+              device: sampleStudent.device,
+              connectivity: sampleStudent.connectivity,
             },
           },
           onboardingDone: true,
           onboardingConsent: { profile: true, games: false, guardianNoticeRead: true },
-        }),
+        })),
       updateProfile: (profile) =>
         set((state) => ({
           profile: {

@@ -4,8 +4,8 @@
 
 :root {
   color-scheme: light;
-  --background: #f7f8f1;
-  --foreground: #30392a;
+  --background: #f4faf8;
+  --foreground: #193a3d;
   --font-open-dyslexic: "OpenDyslexic", "Comic Sans MS", sans-serif;
 }
 
@@ -27,7 +27,7 @@ button:focus-visible, a:focus-visible { outline: 3px solid #e57c62; outline-offs
 .listening-wave i:nth-child(2n) { animation-delay: 0.16s; }
 .listening-wave i:nth-child(3n) { animation-delay: 0.3s; }
 @keyframes listening-wave { to { height: 19px; } }
-.calm, .calm * { filter: saturate(0.72); }
+.calm { filter: saturate(0.72); }
 .calm *, .calm *::before, .calm *::after {
   animation-duration: 0.01ms !important;
   animation-iteration-count: 1 !important;

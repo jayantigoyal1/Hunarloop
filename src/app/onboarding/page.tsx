@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ArrowRight, LoaderCircle, Mic, MicOff } from "lucide-react";
+import { ArrowLeft, ArrowRight, LoaderCircle, Mic, MicOff, Volume2 } from "lucide-react";
 import { Badge, Card } from "@/components/ui";
 import { t } from "@/lib/i18n";
 import { useAppStore } from "@/lib/store";
@@ -81,6 +81,7 @@ export default function OnboardingPage() {
 	const router = useRouter();
 	const language = useAppStore((state) => state.language);
 	const consent = useAppStore((state) => state.onboardingConsent);
+	const audioFirst = useAppStore((state) => state.audioFirst);
 	const setConsent = useAppStore((state) => state.setOnboardingConsent);
 	const [stage, setStage] = useState<"consent" | "questions" | "building">("consent");
 	const [answers, setAnswers] = useState<OnboardingAnswers>(emptyAnswers);
@@ -100,14 +101,27 @@ export default function OnboardingPage() {
 	}, []);
 
 	useEffect(() => {
-		if (stage !== "questions" || typeof window === "undefined" || !("speechSynthesis" in window)) return;
+		if (stage !== "questions" || !audioFirst || !("speechSynthesis" in window)) return;
 		if (typeof SpeechSynthesisUtterance === "undefined") return;
 		window.speechSynthesis.cancel();
 		const utterance = new SpeechSynthesisUtterance(t(question.promptKey, language));
 		utterance.lang = language === "hi" ? "hi-IN" : "en-IN";
 		window.speechSynthesis.speak(utterance);
 		return () => window.speechSynthesis.cancel();
-	}, [language, question.promptKey, questionIndex, stage]);
+	}, [audioFirst, language, question.promptKey, questionIndex, stage]);
+
+	useEffect(() => () => {
+		recognitionRef.current?.stop();
+		window.speechSynthesis?.cancel();
+	}, []);
+
+	const speakQuestion = () => {
+		if (!("speechSynthesis" in window) || typeof SpeechSynthesisUtterance === "undefined") return;
+		window.speechSynthesis.cancel();
+		const utterance = new SpeechSynthesisUtterance(t(question.promptKey, language));
+		utterance.lang = language === "hi" ? "hi-IN" : "en-IN";
+		window.speechSynthesis.speak(utterance);
+	};
 
 	useEffect(() => {
 		if (stage !== "building") return;
@@ -230,7 +244,7 @@ export default function OnboardingPage() {
 
 	if (stage === "consent") {
 		return <div className="mx-auto max-w-sm space-y-3 pb-3">
-			<button type="button" onClick={() => router.push("/")} className="inline-flex min-h-11 items-center gap-2 rounded-lg px-1 text-sm font-bold text-teal-700"><ArrowLeft size={18} aria-hidden="true" />{tForLanguage("common.back")}</button>
+			<button type="button" onClick={() => router.push("/")} className="inline-flex min-h-12 items-center gap-2 rounded-lg px-1 text-sm font-bold text-teal-700"><ArrowLeft size={18} aria-hidden="true" />{tForLanguage("common.back")}</button>
 			<div className="space-y-1"><Badge>{tForLanguage("common.demo")}</Badge><h1 className="text-2xl font-black text-ink">{tForLanguage("onboarding.consentTitle")}</h1><p className="text-sm leading-5 text-ink/75">{tForLanguage("onboarding.consentIntro")}</p></div>
 			<Card className="space-y-3 p-4">
 				<label className="flex min-h-12 cursor-pointer items-start gap-3 text-sm font-semibold leading-5 text-ink"><input type="checkbox" className="mt-0.5 h-5 w-5 shrink-0 accent-teal-700" checked={consent.profile} onChange={(event) => setConsent({ profile: event.target.checked })} /><span>{tForLanguage("onboarding.profileConsent")}</span></label>
@@ -238,7 +252,7 @@ export default function OnboardingPage() {
 			</Card>
 			<Card className="space-y-3 border-clay/30 bg-clay/5 p-4">
 				<p className="text-sm leading-5 text-ink/85">{tForLanguage("onboarding.guardianNotice")}</p>
-				<label className="flex min-h-11 cursor-pointer items-center gap-3 border-t border-clay/15 pt-2 text-sm font-bold text-ink"><input type="checkbox" className="h-5 w-5 shrink-0 accent-teal-700" checked={consent.guardianNoticeRead} onChange={(event) => setConsent({ guardianNoticeRead: event.target.checked })} /><span>{tForLanguage("onboarding.guardianRead")}</span></label>
+				<label className="flex min-h-12 cursor-pointer items-center gap-3 border-t border-clay/15 pt-2 text-sm font-bold text-ink"><input type="checkbox" className="h-5 w-5 shrink-0 accent-teal-700" checked={consent.guardianNoticeRead} onChange={(event) => setConsent({ guardianNoticeRead: event.target.checked })} /><span>{tForLanguage("onboarding.guardianRead")}</span></label>
 			</Card>
 			<button type="button" disabled={!consent.profile || !consent.guardianNoticeRead} onClick={() => { setCurrentAnswer(emptyAnswer(questions[0])); setStage("questions"); }} className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-teal-700 px-4 py-3 text-sm font-extrabold text-white disabled:cursor-not-allowed disabled:opacity-45">{tForLanguage("onboarding.continue")}<ArrowRight size={17} aria-hidden="true" /></button>
 		</div>;
@@ -246,7 +260,7 @@ export default function OnboardingPage() {
 
 	return <div className="mx-auto max-w-sm space-y-3 pb-3">
 		<div className="flex items-center justify-between gap-2">
-			<button type="button" onClick={goBack} className="inline-flex min-h-11 items-center gap-2 rounded-lg px-1 text-sm font-bold text-teal-700"><ArrowLeft size={18} aria-hidden="true" />{tForLanguage("onboarding.back")}</button>
+			<button type="button" onClick={goBack} className="inline-flex min-h-12 items-center gap-2 rounded-lg px-1 text-sm font-bold text-teal-700"><ArrowLeft size={18} aria-hidden="true" />{tForLanguage("onboarding.back")}</button>
 			<span className="text-xs font-bold text-ink/65">{tForLanguage("onboarding.step")} {questionIndex + 1} / {questions.length}</span>
 		</div>
 		<div className="h-1.5 overflow-hidden rounded-full bg-teal-100" role="progressbar" aria-valuemin={0} aria-valuemax={questions.length} aria-valuenow={questionIndex + 1} aria-label={tForLanguage("onboarding.step")}>
@@ -254,13 +268,13 @@ export default function OnboardingPage() {
 		</div>
 		<form onSubmit={handleSubmit} className="space-y-3">
 			<Card className="space-y-3 p-4">
-				<h1 className="text-xl font-black leading-tight text-ink">{tForLanguage(question.promptKey)}</h1>
+				<div className="flex items-start justify-between gap-2"><h1 className="text-xl font-black leading-tight text-ink">{tForLanguage(question.promptKey)}</h1><button type="button" onClick={speakQuestion} className="grid min-h-12 min-w-12 shrink-0 place-items-center rounded-lg bg-teal-50 text-teal-700" aria-label={tForLanguage("onboarding.speakQuestion")} title={tForLanguage("onboarding.speakQuestion")}><Volume2 size={20} aria-hidden="true" /></button></div>
 				{question.multiple ? <p className="text-xs leading-4 text-ink/65">{tForLanguage("onboarding.multipleHint")}</p> : null}
 				{speechChecked && !speechSupported ? <p className="rounded-lg bg-sun/25 px-3 py-2 text-xs leading-4 text-ink/80" role="note">{tForLanguage("onboarding.voiceUnsupported")}</p> : null}
 				{question.options ? <div className="flex flex-wrap gap-2">
 					{question.options.map((option) => {
 						const selected = Array.isArray(currentAnswer) ? currentAnswer.includes(option.value) : currentAnswer === option.value;
-						return <button key={option.value} type="button" aria-pressed={selected} onClick={() => toggleOption(option.value)} className={`min-h-11 rounded-lg border px-3 py-2 text-sm font-semibold ${selected ? "border-teal-700 bg-teal-100 text-teal-700" : "border-teal-100 bg-white text-ink hover:bg-teal-50"}`}>{language === "hi" ? option.hi : option.en}</button>;
+						return <button key={option.value} type="button" aria-pressed={selected} onClick={() => toggleOption(option.value)} className={`min-h-12 rounded-lg border px-3 py-2 text-sm font-semibold ${selected ? "border-teal-700 bg-teal-100 text-teal-700" : "border-teal-100 bg-white text-ink hover:bg-teal-50"}`}>{language === "hi" ? option.hi : option.en}</button>;
 					})}
 				</div> : null}
 				<label className="block">

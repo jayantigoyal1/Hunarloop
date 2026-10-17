@@ -45,11 +45,21 @@ src/
 		route-page.tsx
 		ui.tsx
 	data/
+		badges.ts
+		careers.ts
+		circles.ts
 		demo.ts
+		games.ts
+		opportunities.ts
+		roadmap.ts
+		student.ts
+		teacherStudents.ts
 	lib/
 		i18n.ts
 		store.ts
 		utils.ts
 ```
 
-The header language switch toggles English/Hindi and persists with calm-mode preferences. The student tab bar links to Home, Passport, Careers, Opportunities, and Rewards. `font-dyslexic` is an optional CSS font fallback class; users may supply an OpenDyslexic font locally if desired.
+The header language switch toggles English/Hindi. Its settings menu holds calm mode, the reading font, spoken questions, and the offline demo toggle. These preferences are saved on this device. The student tab bar links to Home, Passport, Careers, Opportunities, and Rewards. `font-dyslexic` uses OpenDyslexic when available on the device and falls back to a readable local font.
+
+Phase 0–2 include the welcome and onboarding flow, the persisted demo store, and data fixtures. The later routes are placeholders for upcoming phases. The offline toggle simulates offline status; it does not cache the site for a fresh offline visit.

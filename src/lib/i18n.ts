@@ -4,7 +4,7 @@ import { useAppStore, type Language } from "@/lib/store";
 
 const messages = {
   en: {
-    "brand.name": "HunarLoop", "header.online": "Online", "header.offline": "Offline", "header.calm": "Calm mode",
+    "brand.name": "HunarLoop", "header.online": "Online", "header.offline": "Offline", "header.calm": "Calm mode", "header.settings": "Settings", "header.font": "Reading font", "header.audio": "Speak questions", "header.offlineDemo": "Offline demo",
     "nav.home": "Home", "nav.passport": "Passport", "nav.careers": "Careers", "nav.opportunities": "Opportunities", "nav.rewards": "Rewards",
     "home.eyebrow": "YOUR SKILLS. YOUR FUTURE.", "home.title": "Every strength has a next step.",
     "home.description": "Explore your strengths and choose a path that fits.", "home.start": "Start my journey",
@@ -30,6 +30,7 @@ const messages = {
     "onboarding.voiceUnsupported": "Voice input is not available here. You can use the choices or type your answer.",
     "onboarding.micStart": "Speak your answer",
     "onboarding.micStop": "Stop listening",
+    "onboarding.speakQuestion": "Hear the question",
     "onboarding.listening": "Listening…",
     "onboarding.voiceError": "Voice input did not work. Please try again or type your answer.",
     "onboarding.building": "AI is building your profile…",
@@ -44,7 +45,7 @@ const messages = {
     "onboarding.q.transport": "How do you usually travel nearby?",
     "onboarding.q.device": "What device can you use?",
     "onboarding.q.connectivity": "How is your internet connection usually?",
-    "route.onboarding.title": "Let’s get to know you", "route.onboarding.description": "Share a little about what you enjoy. You can speak or type, and skip anything you do not want to answer.", "route.onboarding.action": "Create my passport",
+    "route.onboarding.title": "Let’s get to know you", "route.onboarding.description": "Share a little about what you enjoy. You can speak, choose, or type your answers.", "route.onboarding.action": "Create my passport",
     "route.passport.title": "Your Hunar Passport", "route.passport.description": "A confidence-labelled snapshot of your skills, interests, and learning-support signals. You can accept or reject suggestions.", "route.passport.action": "Try a talent game",
     "route.games.title": "Try a talent game", "route.games.description": "Short, friendly activities help you notice the things you do well. There are no wrong answers.", "route.games.action": "See my comfort profile",
     "route.comfort.title": "Your learning comfort", "route.comfort.description": "Tell us what helps you feel comfortable while learning. Your preferences guide the suggestions you see.", "route.comfort.action": "Explore career paths",
@@ -58,7 +59,7 @@ const messages = {
     "common.demo": "Demo data", "common.next": "Next", "common.back": "Back home", "common.step": "Your next step", "common.support": "You are in control", "common.footer": "Made for learning, at your pace.",
   },
   hi: {
-    "brand.name": "हुनरLoop", "header.online": "ऑनलाइन", "header.offline": "ऑफ़लाइन", "header.calm": "शांत मोड",
+    "brand.name": "हुनरLoop", "header.online": "ऑनलाइन", "header.offline": "ऑफ़लाइन", "header.calm": "शांत मोड", "header.settings": "सेटिंग्स", "header.font": "पढ़ने का फ़ॉन्ट", "header.audio": "सवाल सुनाएं", "header.offlineDemo": "ऑफ़लाइन डेमो",
     "nav.home": "होम", "nav.passport": "पासपोर्ट", "nav.careers": "करियर", "nav.opportunities": "अवसर", "nav.rewards": "इनाम",
     "home.eyebrow": "आपका हुनर। आपका भविष्य।", "home.title": "हर खूबी का अगला कदम है।",
     "home.description": "अपनी खूबियां जानें और अपने लिए सही रास्ता चुनें।", "home.start": "मेरी यात्रा शुरू करें",
@@ -84,6 +85,7 @@ const messages = {
     "onboarding.voiceUnsupported": "यहां आवाज़ से जवाब देना उपलब्ध नहीं है। विकल्प चुनें या अपना जवाब लिखें।",
     "onboarding.micStart": "बोलकर जवाब दें",
     "onboarding.micStop": "सुनना बंद करें",
+    "onboarding.speakQuestion": "सवाल सुनें",
     "onboarding.listening": "सुन रहे हैं…",
     "onboarding.voiceError": "आवाज़ से जवाब नहीं मिल पाया। फिर कोशिश करें या लिखें।",
     "onboarding.building": "AI आपकी प्रोफ़ाइल बना रहा है…",
@@ -98,7 +100,7 @@ const messages = {
     "onboarding.q.transport": "आप पास में आने-जाने के लिए क्या इस्तेमाल करते हैं?",
     "onboarding.q.device": "आप कौन-सा उपकरण इस्तेमाल कर सकते हैं?",
     "onboarding.q.connectivity": "आपका इंटरनेट आमतौर पर कैसा रहता है?",
-    "route.onboarding.title": "आइए, आपको जानें", "route.onboarding.description": "अपनी पसंद की कुछ बातें बताएं। आप बोल सकते हैं या लिख सकते हैं, और किसी भी सवाल को छोड़ सकते हैं।", "route.onboarding.action": "मेरा पासपोर्ट बनाएं",
+    "route.onboarding.title": "आइए, आपको जानें", "route.onboarding.description": "अपनी पसंद की कुछ बातें बताएं। आप बोलकर, चुनकर या लिखकर जवाब दे सकते हैं।", "route.onboarding.action": "मेरा पासपोर्ट बनाएं",
     "route.passport.title": "आपका हुनर पासपोर्ट", "route.passport.description": "आपके कौशल, रुचियों और सीखने में सहायता के संकेतों की एक आत्मविश्वास-लेबल वाली झलक। आप सुझाव स्वीकार या अस्वीकार कर सकते हैं।", "route.passport.action": "हुनर खेल आज़माएं",
     "route.games.title": "हुनर का खेल खेलें", "route.games.description": "छोटी और सरल गतिविधियां आपको अपनी खूबियां पहचानने में मदद करती हैं। कोई गलत जवाब नहीं है।", "route.games.action": "सीखने की सहजता देखें",
     "route.comfort.title": "सीखने में आपकी सहजता", "route.comfort.description": "बताएं कि सीखते समय आपको किससे सहज महसूस होता है। आपकी पसंद सुझावों में मदद करेगी।", "route.comfort.action": "करियर के रास्ते देखें",

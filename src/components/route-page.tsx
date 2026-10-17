@@ -18,7 +18,7 @@ export function RoutePage({ route }: { route: keyof typeof routes }) {
   const config = routes[route];
   return (
     <div className="space-y-3 pb-3">
-      <Link href="/" className="inline-flex min-h-11 items-center gap-2 rounded-lg text-sm font-bold text-teal-700 hover:underline"><ArrowLeft size={18} aria-hidden="true" />{translate("common.back")}</Link>
+      <Link href="/" className="inline-flex min-h-12 items-center gap-2 rounded-lg text-sm font-bold text-teal-700 hover:underline"><ArrowLeft size={18} aria-hidden="true" />{translate("common.back")}</Link>
       <div className="flex items-center justify-between gap-3"><SectionTitle title={translate(`route.${config.key}.title`)} /><DemoBadge /></div>
       <Card className="space-y-3">
         <div className="grid h-11 w-11 place-items-center rounded-lg bg-sun/30 text-ink"><Sparkles size={23} aria-hidden="true" /></div>

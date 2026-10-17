@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
-import { BriefcaseBusiness, Gift, House, IdCard, Leaf, Wifi, WifiOff } from "lucide-react";
+import { BriefcaseBusiness, Gift, House, IdCard, Settings2, Wifi, WifiOff } from "lucide-react";
 import { useT } from "@/lib/i18n";
 import { useAppStore } from "@/lib/store";
 import { Badge } from "@/components/ui";
@@ -23,6 +23,12 @@ export function AppShell({ children }: { children: ReactNode }) {
   const toggleLanguage = useAppStore((state) => state.toggleLanguage);
   const calmMode = useAppStore((state) => state.calmMode);
   const setCalmMode = useAppStore((state) => state.setCalmMode);
+  const dyslexicFont = useAppStore((state) => state.dyslexicFont);
+  const setDyslexicFont = useAppStore((state) => state.setDyslexicFont);
+  const audioFirst = useAppStore((state) => state.audioFirst);
+  const setAudioFirst = useAppStore((state) => state.setAudioFirst);
+  const offlineMode = useAppStore((state) => state.offlineMode);
+  const setOfflineMode = useAppStore((state) => state.setOfflineMode);
   const [online, setOnline] = useState(true);
   const showTabs = !["/", "/onboarding", "/parent", "/teacher"].includes(pathname);
 
@@ -42,20 +48,30 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, [language]);
 
   return (
-    <div className={`min-h-screen bg-paper ${calmMode ? "calm" : ""}`}>
+    <div className={`min-h-screen bg-paper ${calmMode ? "calm" : ""} ${dyslexicFont ? "font-dyslexic" : ""}`}>
       <div className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-paper">
         <header className="sticky top-0 z-20 border-b border-teal-100 bg-paper/95 px-3 py-2 backdrop-blur">
-          <div className="flex min-h-11 items-center justify-between gap-2">
-            <Link href="/" className="flex min-h-11 items-center gap-2 rounded-lg text-ink" aria-label="HunarLoop home">
+          <div className="flex min-h-12 items-center justify-between gap-1.5">
+            <Link href="/" className="flex min-h-12 items-center gap-1.5 rounded-lg text-ink" aria-label="HunarLoop home">
               <span className="grid h-8 w-8 place-items-center rounded-lg bg-teal-600 text-sm font-black text-white">ह</span>
               <span className="text-base font-extrabold">{translate("brand.name")}</span>
             </Link>
             <div className="flex items-center gap-1.5">
-              <Badge className={online ? "gap-1 bg-teal-50" : "gap-1 bg-coral/15 text-ink"}>
-                {online ? <Wifi size={14} aria-hidden="true" /> : <WifiOff size={14} aria-hidden="true" />}{translate(online ? "header.online" : "header.offline")}
+              <Badge className={online && !offlineMode ? "gap-1 bg-teal-50" : "gap-1 bg-coral/15 text-ink"}>
+                {online && !offlineMode ? <Wifi size={14} aria-hidden="true" /> : <WifiOff size={14} aria-hidden="true" />}{translate(online && !offlineMode ? "header.online" : "header.offline")}
               </Badge>
-              <button type="button" className="grid h-10 w-10 place-items-center rounded-lg text-teal-700 hover:bg-teal-50" aria-label={translate("header.calm")} aria-pressed={calmMode} onClick={() => setCalmMode(!calmMode)} title={translate("header.calm")}><Leaf size={18} aria-hidden="true" /></button>
-              <button type="button" onClick={toggleLanguage} className="min-h-10 min-w-11 rounded-lg border border-teal-100 bg-white px-2 text-sm font-extrabold text-ink" aria-label={language === "en" ? "हिन्दी में बदलें" : "Switch to English"}>{language === "en" ? "हिं" : "EN"}</button>
+              <details className="group relative">
+                <summary className="grid min-h-12 min-w-12 cursor-pointer list-none place-items-center rounded-lg text-teal-700 hover:bg-teal-50 [&::-webkit-details-marker]:hidden" aria-label={translate("header.settings")} title={translate("header.settings")}><Settings2 size={20} aria-hidden="true" /></summary>
+                <div className="absolute right-0 top-12 z-30 w-64 space-y-1 rounded-xl border border-teal-100 bg-white p-3 shadow-soft">
+                  {[
+                    { key: "header.calm", checked: calmMode, change: setCalmMode },
+                    { key: "header.font", checked: dyslexicFont, change: setDyslexicFont },
+                    { key: "header.audio", checked: audioFirst, change: setAudioFirst },
+                    { key: "header.offlineDemo", checked: offlineMode, change: setOfflineMode },
+                  ].map(({ key, checked, change }) => <label key={key} className="flex min-h-12 cursor-pointer items-center gap-3 rounded-lg px-2 text-sm font-semibold text-ink hover:bg-teal-50"><input type="checkbox" checked={checked} onChange={(event) => change(event.target.checked)} className="h-5 w-5 accent-teal-700" />{translate(key)}</label>)}
+                </div>
+              </details>
+              <button type="button" onClick={toggleLanguage} className="min-h-12 min-w-12 rounded-lg border border-teal-100 bg-white px-2 text-sm font-extrabold text-ink" aria-label={language === "en" ? "हिन्दी में बदलें" : "Switch to English"}>{language === "en" ? "हिं" : "EN"}</button>
             </div>
           </div>
         </header>
