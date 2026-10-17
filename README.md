@@ -62,6 +62,23 @@ src/
 
 The header language switch toggles English/Hindi. Its settings menu holds calm mode, the reading font, spoken questions, and the offline demo toggle. These preferences are saved on this device. The student tab bar links to Home, Passport, Careers, Opportunities, and Rewards. `font-dyslexic` uses OpenDyslexic when available on the device and falls back to a readable local font.
 
-Phases 0–3 include welcome, onboarding, the editable Hunar Passport, the persisted demo store, and data fixtures. The later routes are placeholders for upcoming phases. The offline toggle simulates offline status; it does not cache the site for a fresh offline visit.
+Phases 0–4 include welcome, onboarding, the editable Hunar Passport, three playable talent games, game results, initial learning-preference suggestions, the persisted demo store, and data fixtures. The other routes are placeholders for upcoming phases. The offline toggle simulates offline status; it does not cache the site for a fresh offline visit.
 
 The passport saves profile edits, learning choices, sharing preferences, and evidence filenames to localStorage. The mock file picker never reads or uploads file contents. The employer preview uses an explicit allowlist of name, interests, skills, and goals. Teacher sharing is a saved demo preference; no information is sent. Editing a demo teacher-verified skill removes its verification. Run `npm run test:passport` to check persistence, verification, storage failures, and the employer preview boundary.
+
+Each talent game runs for two minutes of active play. Switching tabs pauses the game; the student resumes when ready. Skip saves partial metrics without adding a completed session or points. Word Pop uses spoken words and picture bubbles, with a picture-matching fallback. Sequence Memory records completed spans and raw sequences. Catch the Star records taps and four 30-second windows; calm mode or reduced-motion preferences use stationary targets.
+
+Raw metrics stay in localStorage. Word reaction times start when the spoken prompt ends (or the visual prompt becomes available). Star accuracy is star taps divided by all taps; extra taps count decoys and empty space. The stored `dropOff` is the first window's catch rate minus the last window's catch rate, and is null when either window has no stars. These metrics are never shown as student labels or included in the employer preview.
+
+The `/games/results` page links to confidence-labelled skill suggestions in Passport. `/comfort` offers optional demo preferences after three completed sessions with metrics. Expand **Demo controls** at the bottom of `/games` to find **Simulate 3 sessions**. It requires consent, fills missing sessions up to three, marks them as simulated, and can be used repeatedly without adding duplicates. Rhythm Tap, Noise Choice, and Instruction Recall are roadmap cards.
+
+Verification commands:
+
+```bash
+npm run test:passport
+npm run test:games
+npm run build
+npm run test:browser
+```
+
+Browser tests use an installed Microsoft Edge, a 360px viewport, mocked speech, and a controlled clock. They launch the production server on port 3100 and stop it afterward. Real device voices depend on the browser; the picture fallback remains available.

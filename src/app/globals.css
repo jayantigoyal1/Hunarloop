@@ -27,6 +27,8 @@ button:focus-visible, a:focus-visible { outline: 3px solid #e57c62; outline-offs
 .listening-wave i:nth-child(2n) { animation-delay: 0.16s; }
 .listening-wave i:nth-child(3n) { animation-delay: 0.3s; }
 @keyframes listening-wave { to { height: 19px; } }
+.game-bubble { animation: bubble-pop 180ms ease-out; }
+@keyframes bubble-pop { from { transform: scale(0.94); } to { transform: scale(1); } }
 .calm { filter: saturate(0.72); }
 .calm *, .calm *::before, .calm *::after {
   animation-duration: 0.01ms !important;

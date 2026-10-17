@@ -3,6 +3,7 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { sampleStudent } from "@/data/student";
+import { demoMetrics, sessionId, skillSignals, type GameMetrics, type GameId } from "@/lib/game-engine";
 
 let deviceStorageAvailable = true;
 export const isDeviceStorageAvailable = () => deviceStorageAvailable;
@@ -50,6 +51,9 @@ export type GameResult = {
   points: number;
   completedAt: string;
   skillSignals: string[];
+  status?: "completed" | "skipped";
+  metrics?: GameMetrics;
+  simulated?: boolean;
 };
 
 export type GameResultInput = Omit<GameResult, "completedAt"> & { completedAt?: string };
@@ -98,6 +102,7 @@ type AppActions = {
   updateProfile: (profile: Partial<Omit<StudentProfile, "constraints">> & { constraints?: Partial<ProfileConstraints> }) => void;
   addGameResult: (result: GameResultInput) => void;
   clearGameResults: () => void;
+  simulateThreeSessions: () => void;
   setComfortSetting: (setting: keyof ComfortSettings, choice: PreferenceChoice) => void;
   setChosenCareerId: (careerId: string | null) => void;
   toggleSavedOpportunity: (opportunityId: string) => void;
@@ -167,7 +172,7 @@ function createInitialData(): AppData {
 
 export const useAppStore = create<AppState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       ...createInitialData(),
       setLanguage: (language) => set({ language }),
       toggleLanguage: () => set((state) => ({ language: state.language === "en" ? "hi" : "en" })),
@@ -215,11 +220,20 @@ export const useAppStore = create<AppState>()(
           },
         })),
       addGameResult: (result) =>
-        set((state) => ({
+        set((state) => state.gameResults.some((existing) => existing.id === result.id) ? state : ({
           gameResults: [...state.gameResults, { ...result, completedAt: result.completedAt ?? new Date().toISOString() }],
-          gameSessionsCount: state.gameSessionsCount + 1,
-          points: state.points + Math.max(0, result.points),
+          gameSessionsCount: state.gameSessionsCount + (result.status === "skipped" ? 0 : 1),
+          points: state.points + (result.status === "skipped" ? 0 : Math.max(0, result.points)),
         })),
+      simulateThreeSessions: () => {
+        if (!get().onboardingConsent.games) return;
+        const ids: GameId[] = ["word-pop", "sequence-memory", "catch-star"];
+        const remaining = Math.max(0, 3 - get().gameResults.filter((result) => result.status !== "skipped" && result.metrics).length);
+        for (let i = 0; i < remaining; i++) {
+          const metrics = demoMetrics(ids[i]);
+          get().addGameResult({ id: sessionId(), gameId: ids[i], points: 10, status: "completed", simulated: true, metrics, skillSignals: skillSignals(metrics) });
+        }
+      },
       clearGameResults: () => set({ gameResults: [], gameSessionsCount: 0 }),
       setComfortSetting: (setting, choice) =>
         set((state) => ({ comfortSettings: { ...state.comfortSettings, [setting]: choice } })),

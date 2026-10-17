@@ -6,6 +6,7 @@ import { ArrowRight, Award, CheckCircle2, FilePlus2, ShieldCheck, X } from "luci
 import { Badge, Button, Card, ConfidenceChip, DemoBadge, SectionTitle } from "@/components/ui";
 import { EditableList, InlineField } from "@/components/passport-editors";
 import { badges } from "@/data/badges";
+import { gameSkillLabel } from "@/data/games";
 import { useT } from "@/lib/i18n";
 import { employerPreview, uniqueItems } from "@/lib/passport";
 import { isDeviceStorageAvailable, useAppStore, type ComfortSettings } from "@/lib/store";
@@ -40,9 +41,9 @@ export default function PassportPage() {
     </Card>
 
     {(["interests", "skills", "goals"] as const).map((key) => <Section key={key} title={t(`passport.${key}`)}>
-      <EditableList label={t(`passport.${key}`)} items={profile[key]} onChange={(items) => state.updateProfile({ [key]: items })} tag={key === "skills" ? skillTag : undefined} />
+      <EditableList label={t(`passport.${key}`)} items={profile[key]} onChange={(items) => state.updateProfile({ [key]: items })} tag={key === "skills" ? skillTag : undefined} displayItem={key === "skills" ? (item) => gameSkillLabel(item, language) : undefined} />
       {key === "skills" && profile.skills.some((skill) => state.teacherVerifiedSkills.includes(skill)) ? <p className="text-xs leading-5 text-ink/75">{t("passport.verificationNote")}</p> : null}
-      {key === "skills" && signals.length > 0 ? <div className="space-y-3 border-t border-teal-100 pt-3"><h3 className="font-bold">{t("passport.signals")}</h3><p className="text-sm leading-6">{t("passport.signalNote")}</p>{signals.map((signal) => <div key={signal} className="space-y-2 rounded-xl border border-teal-100 p-3"><p className="break-words font-semibold">{signal}</p><ConfidenceChip level={t("passport.hypothesis")} /><div className="flex flex-wrap gap-2"><Button type="button" onClick={() => state.updateProfile({ skills: uniqueItems([...profile.skills, signal]) })}>{t("passport.accept")}</Button><Button type="button" variant="quiet" onClick={() => state.dismissSkillSignal(signal)}>{t("passport.reject")}</Button></div></div>)}</div> : null}
+      {key === "skills" && signals.length > 0 ? <div className="space-y-3 border-t border-teal-100 pt-3"><h3 className="font-bold">{t("passport.signals")}</h3><p className="text-sm leading-6">{t("passport.signalNote")}</p>{signals.map((signal) => <div key={signal} className="space-y-2 rounded-xl border border-teal-100 p-3"><p className="break-words font-semibold">{gameSkillLabel(signal, language)}</p><ConfidenceChip level={t("passport.hypothesis")} /><div className="flex flex-wrap gap-2"><Button type="button" onClick={() => state.updateProfile({ skills: uniqueItems([...profile.skills, signal]) })}>{t("passport.accept")}</Button><Button type="button" variant="quiet" onClick={() => state.dismissSkillSignal(signal)}>{t("passport.reject")}</Button></div></div>)}</div> : null}
     </Section>)}
 
     <Section title={t("passport.constraints")}>
@@ -76,7 +77,7 @@ export default function PassportPage() {
 
     <Section title={t("passport.employer")}>
       <ShieldCheck size={24} className="text-teal-700" aria-hidden="true" /><p className="text-sm leading-6 text-ink/80">{t("passport.employerNote")}</p>
-      <div className="space-y-4 rounded-xl bg-paper p-3"><p className="break-words text-lg font-extrabold">{preview.name || "—"}</p>{(["interests", "skills", "goals"] as const).map((key) => <div key={key} className="space-y-2"><h3 className="text-sm font-bold">{t(`passport.${key}`)}</h3>{preview[key].length ? <ul className="space-y-2">{preview[key].map((item, index) => <li key={`${index}-${item}`} className="space-y-1 break-words text-sm"><span className="block">{item}</span>{key === "skills" ? skillTag(item) : null}</li>)}</ul> : <p>—</p>}</div>)}</div>
+      <div className="space-y-4 rounded-xl bg-paper p-3"><p className="break-words text-lg font-extrabold">{preview.name || "—"}</p>{(["interests", "skills", "goals"] as const).map((key) => <div key={key} className="space-y-2"><h3 className="text-sm font-bold">{t(`passport.${key}`)}</h3>{preview[key].length ? <ul className="space-y-2">{preview[key].map((item, index) => <li key={`${index}-${item}`} className="space-y-1 break-words text-sm"><span className="block">{key === "skills" ? gameSkillLabel(item, language) : item}</span>{key === "skills" ? skillTag(item) : null}</li>)}</ul> : <p>—</p>}</div>)}</div>
     </Section>
     <Link href="/games" className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-teal-700 px-4 py-3 font-bold text-white">{t("passport.next")}<ArrowRight size={18} aria-hidden="true" /></Link>
   </div>;

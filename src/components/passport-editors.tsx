@@ -22,13 +22,13 @@ export function InlineField({ label, value, onSave }: { label: string; value: st
   </div>;
 }
 
-export function EditableList({ label, items, onChange, tag }: { label: string; items: string[]; onChange: (items: string[]) => void; tag?: (item: string) => ReactNode }) {
+export function EditableList({ label, items, onChange, tag, displayItem = (item) => item }: { label: string; items: string[]; onChange: (items: string[]) => void; tag?: (item: string) => ReactNode; displayItem?: (item: string) => string }) {
   const t = useT();
   const [editor, setEditor] = useState<{ index: number | null; value: string } | null>(null);
   return <div className="space-y-3">
     {items.length === 0 ? <p className="text-sm leading-6 text-ink/75">{t("passport.empty")}</p> : <ul className="space-y-2">
       {items.map((item, index) => <li key={`${index}-${item}`} className="flex items-center gap-1 rounded-xl bg-teal-50 p-2">
-        <div className="min-w-0 flex-1 space-y-1"><span className="block break-words text-sm font-semibold [overflow-wrap:anywhere]">{item}</span>{tag?.(item)}</div>
+        <div className="min-w-0 flex-1 space-y-1"><span className="block break-words text-sm font-semibold [overflow-wrap:anywhere]">{displayItem(item)}</span>{tag?.(item)}</div>
         <button type="button" className={iconClass} aria-label={`${t("passport.edit")}: ${item}`} onClick={() => setEditor({ index, value: item })}><Pencil size={17} aria-hidden="true" /></button>
         <button type="button" className={iconClass} aria-label={`${t("passport.remove")}: ${item}`} onClick={() => { onChange(items.filter((_, i) => i !== index)); setEditor(null); }}><X size={18} aria-hidden="true" /></button>
       </li>)}
