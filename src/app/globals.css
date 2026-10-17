@@ -4,8 +4,8 @@
 
 :root {
   color-scheme: light;
-  --background: #fbfaf5;
-  --foreground: #173b3a;
+  --background: #f7f8f1;
+  --foreground: #30392a;
   --font-open-dyslexic: "OpenDyslexic", "Comic Sans MS", sans-serif;
 }
 
@@ -21,7 +21,7 @@ body {
 }
 button, a { -webkit-tap-highlight-color: transparent; }
 button:focus-visible, a:focus-visible { outline: 3px solid #e57c62; outline-offset: 3px; }
-.font-dyslexic { font-family: var(--font-open-dyslexic); letter-spacing: 0.035em; line-height: 1.8; }
+.font-dyslexic { font-family: var(--font-open-dyslexic); letter-spacing: 0.035em; line-height: 1.7; }
 .calm, .calm * { filter: saturate(0.72); }
 .calm *, .calm *::before, .calm *::after {
   animation-duration: 0.01ms !important;
