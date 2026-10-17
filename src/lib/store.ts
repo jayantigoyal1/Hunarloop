@@ -4,6 +4,9 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { sampleStudent } from "@/data/student";
 
+let deviceStorageAvailable = true;
+export const isDeviceStorageAvailable = () => deviceStorageAvailable;
+
 export type Language = "en" | "hi";
 export type PreferenceChoice = "accepted" | "rejected" | "pending";
 
@@ -51,6 +54,14 @@ export type GameResult = {
 
 export type GameResultInput = Omit<GameResult, "completedAt"> & { completedAt?: string };
 
+export type PassportEvidence = {
+  id: string;
+  name: string;
+  fileName: string;
+  addedAt: string;
+  status: "pending";
+};
+
 type AppData = {
   language: Language;
   calmMode: boolean;
@@ -68,6 +79,11 @@ type AppData = {
   earnedBadges: string[];
   joinedCircleIds: string[];
   offlineMode: boolean;
+  passportEvidence: PassportEvidence[];
+  teacherVerifiedSkills: string[];
+  dismissedSkillSignals: string[];
+  learningPreferences: string[];
+  shareWithTeacher: boolean;
 };
 
 type AppActions = {
@@ -91,6 +107,12 @@ type AppActions = {
   setOfflineMode: (enabled: boolean) => void;
   toggleOfflineMode: () => void;
   resetDemo: () => void;
+  setShareWithTeacher: (enabled: boolean) => void;
+  setLearningPreferences: (items: string[]) => void;
+  dismissSkillSignal: (signal: string) => void;
+  addEvidence: (items: PassportEvidence[]) => void;
+  renameEvidence: (id: string, name: string) => void;
+  removeEvidence: (id: string) => void;
 };
 
 type AppState = AppData & AppActions;
@@ -135,6 +157,11 @@ function createInitialData(): AppData {
     earnedBadges: [],
     joinedCircleIds: [],
     offlineMode: false,
+    passportEvidence: [],
+    teacherVerifiedSkills: [],
+    dismissedSkillSignals: [],
+    learningPreferences: [],
+    shareWithTeacher: false,
   };
 }
 
@@ -163,7 +190,7 @@ export const useAppStore = create<AppState>()(
             district: sampleStudent.district,
             preferredLanguage: sampleStudent.preferredLanguage,
             interests: ["hands-on making", "helping people", "creative activities"],
-            skills: [],
+            skills: ["drawing", "repairing things"],
             enjoys: ["repairing things", "drawing", "helping at home"],
             goals: ["finish Class 10", "explore vocational training", "earn safely when ready"],
             constraints: {
@@ -175,10 +202,12 @@ export const useAppStore = create<AppState>()(
             },
           },
           onboardingDone: true,
+          teacherVerifiedSkills: ["drawing"],
           onboardingConsent: { profile: true, games: false, guardianNoticeRead: true },
         })),
       updateProfile: (profile) =>
         set((state) => ({
+          teacherVerifiedSkills: state.teacherVerifiedSkills.filter((skill) => (profile.skills ?? state.profile.skills).includes(skill)),
           profile: {
             ...state.profile,
             ...profile,
@@ -213,10 +242,29 @@ export const useAppStore = create<AppState>()(
       setOfflineMode: (offlineMode) => set({ offlineMode }),
       toggleOfflineMode: () => set((state) => ({ offlineMode: !state.offlineMode })),
       resetDemo: () => set(createInitialData()),
+      setShareWithTeacher: (shareWithTeacher) => set({ shareWithTeacher }),
+      setLearningPreferences: (learningPreferences) => set({ learningPreferences }),
+      dismissSkillSignal: (signal) => set((state) => ({ dismissedSkillSignals: [...new Set([...state.dismissedSkillSignals, signal])] })),
+      addEvidence: (items) => set((state) => ({ passportEvidence: [...state.passportEvidence, ...items] })),
+      renameEvidence: (id, name) => set((state) => ({ passportEvidence: state.passportEvidence.map((item) => item.id === id ? { ...item, name } : item) })),
+      removeEvidence: (id) => set((state) => ({ passportEvidence: state.passportEvidence.filter((item) => item.id !== id) })),
     }),
     {
       name: "hunarloop-preferences",
-      storage: createJSONStorage(() => localStorage),
+      storage: createJSONStorage(() => ({
+        getItem: (name) => {
+          try { const value = localStorage.getItem(name); deviceStorageAvailable = true; return value; }
+          catch { deviceStorageAvailable = false; return null; }
+        },
+        setItem: (name, value) => {
+          try { localStorage.setItem(name, value); deviceStorageAvailable = true; }
+          catch { deviceStorageAvailable = false; }
+        },
+        removeItem: (name) => {
+          try { localStorage.removeItem(name); deviceStorageAvailable = true; }
+          catch { deviceStorageAvailable = false; }
+        },
+      })),
       partialize: (state) => ({
         language: state.language,
         calmMode: state.calmMode,
@@ -234,6 +282,11 @@ export const useAppStore = create<AppState>()(
         earnedBadges: state.earnedBadges,
         joinedCircleIds: state.joinedCircleIds,
         offlineMode: state.offlineMode,
+        passportEvidence: state.passportEvidence,
+        teacherVerifiedSkills: state.teacherVerifiedSkills,
+        dismissedSkillSignals: state.dismissedSkillSignals,
+        learningPreferences: state.learningPreferences,
+        shareWithTeacher: state.shareWithTeacher,
       }),
     },
   ),

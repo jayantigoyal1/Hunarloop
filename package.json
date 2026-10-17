@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:passport": "node --test tests/passport.test.cjs"
   },
   "dependencies": {
     "framer-motion": "^14.3.0",
