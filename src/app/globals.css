@@ -22,6 +22,11 @@ body {
 button, a { -webkit-tap-highlight-color: transparent; }
 button:focus-visible, a:focus-visible { outline: 3px solid #e57c62; outline-offset: 3px; }
 .font-dyslexic { font-family: var(--font-open-dyslexic); letter-spacing: 0.035em; line-height: 1.7; }
+.listening-wave { display: inline-flex; height: 20px; align-items: center; gap: 2px; }
+.listening-wave i { display: block; width: 3px; height: 7px; border-radius: 999px; background: currentColor; animation: listening-wave 0.85s ease-in-out infinite alternate; }
+.listening-wave i:nth-child(2n) { animation-delay: 0.16s; }
+.listening-wave i:nth-child(3n) { animation-delay: 0.3s; }
+@keyframes listening-wave { to { height: 19px; } }
 .calm, .calm * { filter: saturate(0.72); }
 .calm *, .calm *::before, .calm *::after {
   animation-duration: 0.01ms !important;

@@ -10,6 +10,7 @@ const config: Config = {
         teal: { 50: "#eef2e6", 100: "#dfe7d2", 500: "#809366", 600: "#62784d", 700: "#4b603b" },
         sun: "#e8cd82",
         coral: "#c87860",
+        clay: "#a85f49",
       },
       borderRadius: { card: "0.5rem" },
       fontFamily: { sans: ["var(--font-geist-sans)", "Noto Sans Devanagari", "sans-serif"] },

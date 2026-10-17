@@ -8,17 +8,28 @@ export type PreferenceChoice = "accepted" | "rejected" | "pending";
 
 export type ProfileConstraints = {
   location: string;
-  budget: "low" | "medium" | "high";
+  budget: string;
   transport: string;
   device: string;
   connectivity: string;
 };
 
 export type StudentProfile = {
+  name: string;
+  village: string;
+  district: string;
+  preferredLanguage: string;
   interests: string[];
   skills: string[];
+  enjoys: string[];
   goals: string[];
   constraints: ProfileConstraints;
+};
+
+export type OnboardingConsent = {
+  profile: boolean;
+  games: boolean;
+  guardianNoticeRead: boolean;
 };
 
 export type ComfortSettings = {
@@ -45,6 +56,7 @@ type AppData = {
   dyslexicFont: boolean;
   audioFirst: boolean;
   onboardingDone: boolean;
+  onboardingConsent: OnboardingConsent;
   profile: StudentProfile;
   gameResults: GameResult[];
   gameSessionsCount: number;
@@ -64,6 +76,8 @@ type AppActions = {
   setDyslexicFont: (enabled: boolean) => void;
   setAudioFirst: (enabled: boolean) => void;
   setOnboardingDone: (done: boolean) => void;
+  setOnboardingConsent: (consent: Partial<OnboardingConsent>) => void;
+  loadDemoProfile: () => void;
   updateProfile: (profile: Partial<Omit<StudentProfile, "constraints">> & { constraints?: Partial<ProfileConstraints> }) => void;
   addGameResult: (result: GameResultInput) => void;
   clearGameResults: () => void;
@@ -87,12 +101,18 @@ function createInitialData(): AppData {
     dyslexicFont: false,
     audioFirst: false,
     onboardingDone: false,
+    onboardingConsent: { profile: false, games: false, guardianNoticeRead: false },
     profile: {
+      name: "",
+      village: "",
+      district: "",
+      preferredLanguage: "English",
       interests: [],
       skills: [],
+      enjoys: [],
       goals: [],
       constraints: {
-        location: "Khejroli, Jaipur, Rajasthan",
+        location: "",
         budget: "low",
         transport: "bus",
         device: "low-end Android phone",
@@ -127,6 +147,30 @@ export const useAppStore = create<AppState>()(
       setDyslexicFont: (dyslexicFont) => set({ dyslexicFont }),
       setAudioFirst: (audioFirst) => set({ audioFirst }),
       setOnboardingDone: (onboardingDone) => set({ onboardingDone }),
+      setOnboardingConsent: (consent) =>
+        set((state) => ({ onboardingConsent: { ...state.onboardingConsent, ...consent } })),
+      loadDemoProfile: () =>
+        set({
+          profile: {
+            name: "Asha",
+            village: "Khejroli",
+            district: "Jaipur",
+            preferredLanguage: "Hindi",
+            interests: ["hands-on making", "helping people", "creative activities"],
+            skills: [],
+            enjoys: ["repairing things", "drawing", "helping at home"],
+            goals: ["finish Class 10", "explore vocational training", "earn safely when ready"],
+            constraints: {
+              location: "Khejroli, Jaipur, Rajasthan",
+              budget: "low",
+              transport: "bus",
+              device: "low-end Android phone",
+              connectivity: "patchy mobile data",
+            },
+          },
+          onboardingDone: true,
+          onboardingConsent: { profile: true, games: false, guardianNoticeRead: true },
+        }),
       updateProfile: (profile) =>
         set((state) => ({
           profile: {
@@ -173,6 +217,7 @@ export const useAppStore = create<AppState>()(
         dyslexicFont: state.dyslexicFont,
         audioFirst: state.audioFirst,
         onboardingDone: state.onboardingDone,
+        onboardingConsent: state.onboardingConsent,
         profile: state.profile,
         gameResults: state.gameResults,
         gameSessionsCount: state.gameSessionsCount,

@@ -24,7 +24,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const calmMode = useAppStore((state) => state.calmMode);
   const setCalmMode = useAppStore((state) => state.setCalmMode);
   const [online, setOnline] = useState(true);
-  const showTabs = pathname !== "/parent" && pathname !== "/teacher";
+  const showTabs = !["/", "/onboarding", "/parent", "/teacher"].includes(pathname);
 
   useEffect(() => {
     const updateStatus = () => setOnline(navigator.onLine);
