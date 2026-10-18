@@ -43,10 +43,12 @@ src/
 	components/
 		app-shell.tsx
 		route-page.tsx
+		summary-player.tsx
 		ui.tsx
 	data/
 		badges.ts
 		careers.ts
+		circle-activities.ts
 		circles.ts
 		demo.ts
 		games.ts
@@ -55,14 +57,17 @@ src/
 		student.ts
 		teacherStudents.ts
 	lib/
+		community-i18n.ts
 		i18n.ts
+		parent-summary.ts
+		rewards.ts
 		store.ts
 		utils.ts
 ```
 
 The header language switch toggles English/Hindi. Its settings menu holds calm mode, the reading font, spoken questions, and the offline demo toggle. These preferences are saved on this device. The student tab bar links to Home, Passport, Careers, Opportunities, and Rewards. `font-dyslexic` uses OpenDyslexic when available on the device and falls back to a readable local font.
 
-Phases 0–7 include welcome, onboarding, the editable Hunar Passport, three playable talent games, game results, learning comfort controls and preview, careers, the weekly roadmap, opportunities with an application assistant, the persisted demo store, and data fixtures. The other routes are placeholders for upcoming phases. The offline toggle simulates offline status; it does not cache the site for a fresh offline visit.
+Phases 0–8 include welcome, onboarding, the editable Hunar Passport, three playable talent games, game results, learning comfort controls and preview, careers, the weekly roadmap, opportunities with an application assistant, rewards, learning circles, a parent summary, the persisted demo store, and data fixtures. The teacher route remains a placeholder. The offline toggle simulates offline status; it does not cache the site for a fresh offline visit.
 
 The passport saves profile edits, learning choices, sharing preferences, and evidence filenames to localStorage. The mock file picker never reads or uploads file contents. The employer preview uses an explicit allowlist of name, interests, skills, and goals. Teacher sharing is a saved demo preference; no information is sent. Editing a demo teacher-verified skill removes its verification. Run `npm run test:passport` to check persistence, verification, storage failures, and the employer preview boundary.
 
@@ -73,6 +78,12 @@ Raw metrics stay in localStorage. Word reaction times start when the spoken prom
 The `/games/results` page links to confidence-labelled skill suggestions in Passport. `/comfort` offers optional preferences to everyone; support patterns appear after three completed sessions with metrics. Expand **Demo controls** at the bottom of `/games` to find **Simulate 3 sessions**. It requires consent, fills missing sessions up to three, marks them as simulated, and can be used repeatedly without adding duplicates. Rhythm Tap, Noise Choice, and Instruction Recall are roadmap cards.
 
 Phase notes:
+
+Phase 8 adds participation-based rewards, four fictional interest circles, and a parent summary with browser speech playback. Game participation earns ten points per completed session regardless of result; each distinct plan step earns five points once. Badges use onboarding, student-edited Passport, completed sessions, a chosen career, and plan steps. Sensitive game metrics and learning-support signals never contribute to points or badges. Older saved point totals appear as a dated-unknown history item.
+
+Circle membership, reports, and showcase hiding are local demo actions; no facilitator receives them. All showcase entries are fictional and show first name and initial only. The parent transcript contains the chosen career, illustrative cost, a scholarship enquiry, and a sourced demo income range. The optional family-led support card appears only after support patterns are available; it does not name a condition or send a referral. The district hospital/DEIC location, fee, and age eligibility are unverified demo examples; confirm directly before travel. References: [National Career Service](https://www.ncs.gov.in/) and [National Health Mission DEIC guidance](https://www.nhm.gov.in/images/pdf/programmes/RBSK/Operational_Guidelines/Operational-Guidelines-DEIC-RBSK.pdf).
+
+Run `node --test tests/community.test.cjs` for participation rewards, persistence, circle matching, and parent-summary privacy. Browser tests cover rewards, circle membership and reporting, and parent speech controls in both languages.
 
 Phase 7 adds opportunity filters (type, 0–50 km, women/girls, next seven days, learning accommodations/rights information and saved items), a schematic village map and a keyboard-accessible application drawer. Map numbers match the cards; three distance bands are illustrative rather than geographic bearings. Online listings remain available in the 0 km filter.
 

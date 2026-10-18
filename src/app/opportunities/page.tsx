@@ -22,6 +22,8 @@ export default function OpportunitiesPage() {
   useEffect(() => {
     setReady(true);
     setNow(Date.now());
+    const linkedId = new URLSearchParams(window.location.search).get("item");
+    if (linkedId && opportunityCatalog.some((item) => item.id === linkedId) && (!useAppStore.getState().offlineMode || useAppStore.getState().opportunityDownloads[linkedId])) setSelectedId(linkedId);
     const connection = () => setConnected(navigator.onLine);
     connection();
     window.addEventListener("online", connection);

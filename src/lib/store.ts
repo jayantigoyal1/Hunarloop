@@ -4,6 +4,10 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { sampleStudent } from "@/data/student";
 import { careers } from "@/data/careers";
+import { circles } from "@/data/circles";
+import { circleDetails } from "@/data/circle-activities";
+import { badges } from "@/data/badges";
+import { activityBadgeIds, type ActivityEvent } from "@/lib/rewards";
 import { opportunityCatalog, type OpportunityDownload } from "@/data/opportunity-catalog";
 import { validMilestone, type LessonFormat } from "@/data/roadmap";
 import { demoMetrics, sessionId, skillSignals, type GameMetrics, type GameId } from "@/lib/game-engine";
@@ -81,6 +85,7 @@ type AppData = {
   onboardingDone: boolean;
   onboardingConsent: OnboardingConsent;
   profile: StudentProfile;
+  passportEdited: boolean;
   gameResults: GameResult[];
   gameSessionsCount: number;
   comfortSettings: ComfortSettings;
@@ -93,6 +98,8 @@ type AppData = {
   opportunityDocuments: Record<string, string[]>;
   points: number;
   earnedBadges: string[];
+  activityHistory: ActivityEvent[];
+  reportedShowcaseIds: string[];
   joinedCircleIds: string[];
   offlineMode: boolean;
   passportEvidence: PassportEvidence[];
@@ -124,6 +131,9 @@ type AppActions = {
   setOpportunityDocument: (opportunityId: string, documentId: string, checked: boolean) => void;
   addPoints: (amount: number) => void;
   awardBadge: (badgeId: string) => void;
+  syncActivityBadges: () => void;
+  reportShowcase: (id: string) => void;
+  restoreShowcase: (id: string) => void;
   toggleJoinedCircle: (circleId: string) => void;
   setOfflineMode: (enabled: boolean) => void;
   toggleOfflineMode: () => void;
@@ -167,6 +177,7 @@ function createInitialData(): AppData {
         connectivity: "patchy mobile data",
       },
     },
+    passportEdited: false,
     gameResults: [],
     gameSessionsCount: 0,
     comfortSettings: {
@@ -189,6 +200,8 @@ function createInitialData(): AppData {
     opportunityDocuments: {},
     points: 0,
     earnedBadges: [],
+    activityHistory: [],
+    reportedShowcaseIds: [],
     joinedCircleIds: [],
     offlineMode: false,
     passportEvidence: [],
@@ -209,7 +222,7 @@ export const useAppStore = create<AppState>()(
       setCalmMode: (calmMode) => set((state) => ({ calmMode, comfortSettings: { ...state.comfortSettings, calmMode: calmMode ? "accepted" : "rejected" } })),
       setDyslexicFont: (dyslexicFont) => set((state) => ({ dyslexicFont, comfortSettings: { ...state.comfortSettings, readingFont: dyslexicFont ? "accepted" : "rejected" } })),
       setAudioFirst: (audioFirst) => set((state) => ({ audioFirst, comfortSettings: { ...state.comfortSettings, audioInstructions: audioFirst ? "accepted" : "rejected" } })),
-      setOnboardingDone: (onboardingDone) => set({ onboardingDone }),
+      setOnboardingDone: (onboardingDone) => { set((state) => ({ onboardingDone, activityHistory: onboardingDone && !state.activityHistory.some((item) => item.id === "onboarding") ? [...state.activityHistory, { id: "onboarding", kind: "onboarding", points: 0, occurredAt: new Date().toISOString() }] : state.activityHistory })); get().syncActivityBadges(); },
       setOnboardingConsent: (consent) =>
         set((state) => ({ onboardingConsent: { ...state.onboardingConsent, ...consent } })),
       loadDemoProfile: () =>
@@ -241,21 +254,27 @@ export const useAppStore = create<AppState>()(
           teacherVerifiedSkills: ["drawing"],
           onboardingConsent: { profile: true, games: false, guardianNoticeRead: true },
         })),
-      updateProfile: (profile) =>
+      updateProfile: (profile) => {
         set((state) => ({
+          passportEdited: state.passportEdited || Boolean(profile.interests?.length || profile.goals?.length || profile.enjoys?.length),
           teacherVerifiedSkills: state.teacherVerifiedSkills.filter((skill) => (profile.skills ?? state.profile.skills).includes(skill)),
           profile: {
             ...state.profile,
             ...profile,
             constraints: { ...state.profile.constraints, ...profile.constraints },
           },
-        })),
-      addGameResult: (result) =>
+        }));
+        get().syncActivityBadges();
+      },
+      addGameResult: (result) => {
         set((state) => state.gameResults.some((existing) => existing.id === result.id) ? state : ({
-          gameResults: [...state.gameResults, { ...result, completedAt: result.completedAt ?? new Date().toISOString() }],
+          gameResults: [...state.gameResults, { ...result, points: result.status === "skipped" ? 0 : 10, completedAt: result.completedAt ?? new Date().toISOString() }],
           gameSessionsCount: state.gameSessionsCount + (result.status === "skipped" ? 0 : 1),
-          points: state.points + (result.status === "skipped" ? 0 : Math.max(0, result.points)),
-        })),
+          points: state.points + (result.status === "skipped" ? 0 : 10),
+          activityHistory: result.status === "skipped" ? state.activityHistory : [...state.activityHistory, { id: "game:" + result.id, kind: "game", points: 10, occurredAt: result.completedAt ?? new Date().toISOString(), simulated: result.simulated }],
+        }));
+        get().syncActivityBadges();
+      },
       simulateThreeSessions: () => {
         if (!get().onboardingConsent.games) return;
         const ids: GameId[] = ["word-pop", "sequence-memory", "catch-star"];
@@ -274,9 +293,14 @@ export const useAppStore = create<AppState>()(
           ...(setting === "audioInstructions" ? { audioFirst: choice === "accepted" } : {}),
           ...(setting === "focusTimer" && choice !== "accepted" ? { focusTimerState: { remainingMs: state.focusTimerState.endsAt === null ? state.focusTimerState.remainingMs : Math.max(0, state.focusTimerState.endsAt - Date.now()), endsAt: null } } : {}),
         })),
-      setChosenCareerId: (chosenCareerId) => set({ chosenCareerId }),
+      setChosenCareerId: (chosenCareerId) => {
+        if (chosenCareerId !== null && !careers.some((item) => item.id === chosenCareerId)) return;
+        set((state) => ({ chosenCareerId, activityHistory: chosenCareerId && !state.activityHistory.some((item) => item.id === "career:" + chosenCareerId) ? [...state.activityHistory, { id: "career:" + chosenCareerId, kind: "career", points: 0, occurredAt: new Date().toISOString() }] : state.activityHistory }));
+        get().syncActivityBadges();
+      },
       setRoadmapFormat: (roadmapFormat) => set({ roadmapFormat }),
-      setMilestoneComplete: (id, complete) => set((state) => {
+      setMilestoneComplete: (id, complete) => {
+        set((state) => {
         if (!validMilestone(id, careers.map((career) => career.id))) return state;
         const completed = state.completedMilestoneIds.includes(id);
         if (completed === complete) return state;
@@ -285,8 +309,11 @@ export const useAppStore = create<AppState>()(
           completedMilestoneIds: complete ? [...state.completedMilestoneIds, id] : state.completedMilestoneIds.filter((item) => item !== id),
           rewardedMilestoneIds: reward ? [...state.rewardedMilestoneIds, id] : state.rewardedMilestoneIds,
           points: state.points + (reward ? 5 : 0),
+          activityHistory: reward ? [...state.activityHistory, { id: "milestone:" + id, kind: "milestone", points: 5, occurredAt: new Date().toISOString() }] : state.activityHistory,
         };
-      }),
+        });
+        get().syncActivityBadges();
+      },
       toggleSavedOpportunity: (opportunityId) => set((state) => {
         const listing = opportunityCatalog.find((item) => item.id === opportunityId);
         if (!listing) return state;
@@ -307,15 +334,29 @@ export const useAppStore = create<AppState>()(
         const existing = state.opportunityDocuments[opportunityId] ?? [];
         return { opportunityDocuments: { ...state.opportunityDocuments, [opportunityId]: checked ? [...new Set([...existing, documentId])] : existing.filter((id) => id !== documentId) } };
       }),
-      addPoints: (amount) => set((state) => ({ points: Math.max(0, state.points + amount) })),
+      addPoints: (amount) => set((state) => {
+        if (!Number.isFinite(amount) || amount === 0) return state;
+        const points = Math.max(0, state.points + amount);
+        return { points, activityHistory: [...state.activityHistory, { id: "adjustment:" + Date.now() + ":" + state.activityHistory.length, kind: "adjustment", occurredAt: new Date().toISOString(), points: points - state.points }] };
+      }),
       awardBadge: (badgeId) =>
-        set((state) => ({ earnedBadges: state.earnedBadges.includes(badgeId) ? state.earnedBadges : [...state.earnedBadges, badgeId] })),
-      toggleJoinedCircle: (circleId) =>
-        set((state) => ({
-          joinedCircleIds: state.joinedCircleIds.includes(circleId)
-            ? state.joinedCircleIds.filter((id) => id !== circleId)
-            : [...state.joinedCircleIds, circleId],
-        })),
+        set((state) => ({ earnedBadges: !badges.some((badge) => badge.id === badgeId) || state.earnedBadges.includes(badgeId) ? state.earnedBadges : [...state.earnedBadges, badgeId] })),
+      syncActivityBadges: () => set((state) => {
+        const earnedBadges = [...new Set([...state.earnedBadges, ...activityBadgeIds({ onboardingDone: state.onboardingDone, passportEdited: state.passportEdited, chosenCareerId: state.chosenCareerId, completedSessions: state.gameSessionsCount, milestoneCount: state.rewardedMilestoneIds.length })])];
+        return earnedBadges.length === state.earnedBadges.length ? state : { earnedBadges };
+      }),
+      reportShowcase: (id) => set((state) => !Object.values(circleDetails).some((item) => item.showcase.id === id) || state.reportedShowcaseIds.includes(id) ? state : { reportedShowcaseIds: [...state.reportedShowcaseIds, id] }),
+      restoreShowcase: (id) => set((state) => ({ reportedShowcaseIds: state.reportedShowcaseIds.filter((item) => item !== id) })),
+      toggleJoinedCircle: (circleId) => set((state) => {
+        if (!circles.some((circle) => circle.id === circleId)) return state;
+        const joined = state.joinedCircleIds.includes(circleId);
+        return {
+          joinedCircleIds: joined ? state.joinedCircleIds.filter((id) => id !== circleId) : [...state.joinedCircleIds, circleId],
+          activityHistory: !joined && !state.activityHistory.some((item) => item.id === "circle:" + circleId)
+            ? [...state.activityHistory, { id: "circle:" + circleId, kind: "circleJoined", points: 0, occurredAt: new Date().toISOString() }]
+            : state.activityHistory,
+        };
+      }),
       setOfflineMode: (offlineMode) => set({ offlineMode }),
       toggleOfflineMode: () => set((state) => ({ offlineMode: !state.offlineMode })),
       resetDemo: () => set(createInitialData()),
@@ -339,6 +380,7 @@ export const useAppStore = create<AppState>()(
         if (!previous.comfortSettings?.readingFont && previous.dyslexicFont) comfortSettings.readingFont = "accepted";
         return {
           ...current, ...previous, comfortSettings,
+          activityHistory: previous.activityHistory ?? (previous.points ? [{ id: "legacy-points", kind: "legacy", points: previous.points, occurredAt: null }] : []),
           focusTimerState: { ...current.focusTimerState, ...previous.focusTimerState },
           calmMode: comfortSettings.calmMode === "accepted",
           dyslexicFont: comfortSettings.readingFont === "accepted",
@@ -367,6 +409,7 @@ export const useAppStore = create<AppState>()(
         onboardingDone: state.onboardingDone,
         onboardingConsent: state.onboardingConsent,
         profile: state.profile,
+        passportEdited: state.passportEdited,
         gameResults: state.gameResults,
         gameSessionsCount: state.gameSessionsCount,
         comfortSettings: state.comfortSettings,
@@ -379,6 +422,8 @@ export const useAppStore = create<AppState>()(
         opportunityDocuments: state.opportunityDocuments,
         points: state.points,
         earnedBadges: state.earnedBadges,
+        activityHistory: state.activityHistory,
+        reportedShowcaseIds: state.reportedShowcaseIds,
         joinedCircleIds: state.joinedCircleIds,
         offlineMode: state.offlineMode,
         passportEvidence: state.passportEvidence,

@@ -11,7 +11,7 @@ export const badges: DemoBadge[] = [
   { id: "curious-explorer", title: { en: "Curious Explorer", hi: "जिज्ञासु खोजी" }, description: { en: "Tried your first talent game.", hi: "अपना पहला हुनर खेल आज़माया।" }, points: 15, isDemoData: true },
   { id: "passport-maker", title: { en: "Passport Maker", hi: "पासपोर्ट निर्माता" }, description: { en: "Added your own ideas to your Hunar Passport.", hi: "अपने हुनर पासपोर्ट में अपने विचार जोड़े।" }, points: 20, isDemoData: true },
   { id: "path-finder", title: { en: "Path Finder", hi: "रास्ता खोजी" }, description: { en: "Saved a career path to explore.", hi: "जानने के लिए एक करियर रास्ता सहेजा।" }, points: 20, isDemoData: true },
-  { id: "steady-steps", title: { en: "Steady Steps", hi: "लगातार कदम" }, description: { en: "Returned to your plan for another small step.", hi: "एक और छोटा कदम लेने के लिए अपनी योजना पर लौटे।" }, points: 25, isDemoData: true },
+  { id: "steady-steps", title: { en: "Steady Steps", hi: "लगातार कदम" }, description: { en: "Completed four different plan milestones.", hi: "योजना के चार अलग कदम पूरे किए।" }, points: 25, isDemoData: true },
 ];
 
 export const isDemoData = true;

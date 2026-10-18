@@ -80,7 +80,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </header>
         <main className="flex-1 space-y-3 px-3 pb-5 pt-3">
           {focusTimer && pathname !== "/comfort" && !pathname.startsWith("/games") ? <FocusTimer compact /> : null}
-          {audioFirst && !["/", "/onboarding", "/comfort"].includes(pathname) && !pathname.startsWith("/games") ? <ReadAloud label={translate("comfort.readPage")} text={() => document.querySelector<HTMLElement>("[data-page-content]")?.innerText ?? ""} /> : null}
+          {audioFirst && !["/", "/onboarding", "/comfort", "/parent"].includes(pathname) && !pathname.startsWith("/games") ? <ReadAloud label={translate("comfort.readPage")} text={() => document.querySelector<HTMLElement>("[data-page-content]")?.innerText ?? ""} /> : null}
           <div data-page-content>{children}</div>
         </main>
         {showTabs ? (
