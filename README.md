@@ -62,7 +62,7 @@ src/
 
 The header language switch toggles English/Hindi. Its settings menu holds calm mode, the reading font, spoken questions, and the offline demo toggle. These preferences are saved on this device. The student tab bar links to Home, Passport, Careers, Opportunities, and Rewards. `font-dyslexic` uses OpenDyslexic when available on the device and falls back to a readable local font.
 
-Phases 0–6 include welcome, onboarding, the editable Hunar Passport, three playable talent games, game results, learning comfort controls and preview, careers, the weekly roadmap, the persisted demo store, and data fixtures. The other routes are placeholders for upcoming phases. The offline toggle simulates offline status; it does not cache the site for a fresh offline visit.
+Phases 0–7 include welcome, onboarding, the editable Hunar Passport, three playable talent games, game results, learning comfort controls and preview, careers, the weekly roadmap, opportunities with an application assistant, the persisted demo store, and data fixtures. The other routes are placeholders for upcoming phases. The offline toggle simulates offline status; it does not cache the site for a fresh offline visit.
 
 The passport saves profile edits, learning choices, sharing preferences, and evidence filenames to localStorage. The mock file picker never reads or uploads file contents. The employer preview uses an explicit allowlist of name, interests, skills, and goals. Teacher sharing is a saved demo preference; no information is sent. Editing a demo teacher-verified skill removes its verification. Run `npm run test:passport` to check persistence, verification, storage failures, and the employer preview boundary.
 
@@ -72,7 +72,17 @@ Raw metrics stay in localStorage. Word reaction times start when the spoken prom
 
 The `/games/results` page links to confidence-labelled skill suggestions in Passport. `/comfort` offers optional preferences to everyone; support patterns appear after three completed sessions with metrics. Expand **Demo controls** at the bottom of `/games` to find **Simulate 3 sessions**. It requires consent, fills missing sessions up to three, marks them as simulated, and can be used repeatedly without adding duplicates. Rhythm Tap, Noise Choice, and Instruction Recall are roadmap cards.
 
-Verification commands:
+Phase notes:
+
+Phase 7 adds opportunity filters (type, 0–50 km, women/girls, next seven days, learning accommodations/rights information and saved items), a schematic village map and a keyboard-accessible application drawer. Map numbers match the cards; three distance bands are illustrative rather than geographic bearings. Online listings remain available in the 0 km filter.
+
+The catalog preserves official provider URLs and explicitly unverified demo verification dates. Its sample deadlines and distances support the demonstration only. Countdown labels use India calendar days; expired and undated entries do not appear under deadline-soon. Support flags describe demo information to ask about, not confirmed facilities or legal eligibility.
+
+Eligibility uses the labelled Asha fixture (16, Class 10, Rajasthan), with explicit match, unmet condition and unknown states. Gender is not inferred from her name. All sample thresholds and provider approvals must be checked officially. Document checkmarks persist locally without collecting files or sensitive document contents. The SMS button only shows a toast: nothing is sent or scheduled.
+
+Saving stores a complete listing snapshot and timestamp in localStorage. Manual offline mode, or the browser's offline event, blocks non-downloaded details and all external links. Downloaded details and document checks remain usable; removing a saved item removes its snapshot. A fresh offline site launch still needs a separate service-worker/cache feature. Legacy saved IDs without snapshots can be downloaded again while online.
+
+Run `node --test tests/opportunities.test.cjs` for filters, countdown boundaries, eligibility, persistence, offline download blocking and map target spacing. Mobile browser tests cover the drawer focus trap, pin selection, Hindi, checklists, mock SMS and offline removal.
 
 Phase 6 implements careers and the eight-week roadmap. Each route ranks six demo careers with at most two per category, using profile keywords and illustrative travel/budget rules. Match percentages are not predictions; distances are fictional and training availability is unverified. Compare two careers and choose one to open its plan. All available careers have eight bilingual weeks, sixteen milestones and a distinct safe practice project.
 

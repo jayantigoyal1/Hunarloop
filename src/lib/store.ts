@@ -4,6 +4,7 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { sampleStudent } from "@/data/student";
 import { careers } from "@/data/careers";
+import { opportunityCatalog, type OpportunityDownload } from "@/data/opportunity-catalog";
 import { validMilestone, type LessonFormat } from "@/data/roadmap";
 import { demoMetrics, sessionId, skillSignals, type GameMetrics, type GameId } from "@/lib/game-engine";
 
@@ -88,6 +89,8 @@ type AppData = {
   rewardedMilestoneIds: string[];
   roadmapFormat: LessonFormat | null;
   savedOpportunityIds: string[];
+  opportunityDownloads: Record<string, OpportunityDownload>;
+  opportunityDocuments: Record<string, string[]>;
   points: number;
   earnedBadges: string[];
   joinedCircleIds: string[];
@@ -118,6 +121,7 @@ type AppActions = {
   setMilestoneComplete: (id: string, complete: boolean) => void;
   setRoadmapFormat: (format: LessonFormat) => void;
   toggleSavedOpportunity: (opportunityId: string) => void;
+  setOpportunityDocument: (opportunityId: string, documentId: string, checked: boolean) => void;
   addPoints: (amount: number) => void;
   awardBadge: (badgeId: string) => void;
   toggleJoinedCircle: (circleId: string) => void;
@@ -181,6 +185,8 @@ function createInitialData(): AppData {
     rewardedMilestoneIds: [],
     roadmapFormat: null,
     savedOpportunityIds: [],
+    opportunityDownloads: {},
+    opportunityDocuments: {},
     points: 0,
     earnedBadges: [],
     joinedCircleIds: [],
@@ -281,12 +287,26 @@ export const useAppStore = create<AppState>()(
           points: state.points + (reward ? 5 : 0),
         };
       }),
-      toggleSavedOpportunity: (opportunityId) =>
-        set((state) => ({
-          savedOpportunityIds: state.savedOpportunityIds.includes(opportunityId)
-            ? state.savedOpportunityIds.filter((id) => id !== opportunityId)
-            : [...state.savedOpportunityIds, opportunityId],
-        })),
+      toggleSavedOpportunity: (opportunityId) => set((state) => {
+        const listing = opportunityCatalog.find((item) => item.id === opportunityId);
+        if (!listing) return state;
+        if (state.opportunityDownloads[opportunityId]) {
+          const opportunityDownloads = { ...state.opportunityDownloads };
+          delete opportunityDownloads[opportunityId];
+          return { opportunityDownloads, savedOpportunityIds: state.savedOpportunityIds.filter((id) => id !== opportunityId) };
+        }
+        if (state.offlineMode || (typeof navigator !== "undefined" && navigator.onLine === false)) return state;
+        return {
+          savedOpportunityIds: [...new Set([...state.savedOpportunityIds, opportunityId])],
+          opportunityDownloads: { ...state.opportunityDownloads, [opportunityId]: { listing, updatedAt: new Date().toISOString() } },
+        };
+      }),
+      setOpportunityDocument: (opportunityId, documentId, checked) => set((state) => {
+        const listing = state.opportunityDownloads[opportunityId]?.listing ?? opportunityCatalog.find((item) => item.id === opportunityId);
+        if (!listing || !listing.documents.some((_, index) => documentId === "doc-" + index)) return state;
+        const existing = state.opportunityDocuments[opportunityId] ?? [];
+        return { opportunityDocuments: { ...state.opportunityDocuments, [opportunityId]: checked ? [...new Set([...existing, documentId])] : existing.filter((id) => id !== documentId) } };
+      }),
       addPoints: (amount) => set((state) => ({ points: Math.max(0, state.points + amount) })),
       awardBadge: (badgeId) =>
         set((state) => ({ earnedBadges: state.earnedBadges.includes(badgeId) ? state.earnedBadges : [...state.earnedBadges, badgeId] })),
@@ -355,6 +375,8 @@ export const useAppStore = create<AppState>()(
         rewardedMilestoneIds: state.rewardedMilestoneIds,
         roadmapFormat: state.roadmapFormat,
         savedOpportunityIds: state.savedOpportunityIds,
+        opportunityDownloads: state.opportunityDownloads,
+        opportunityDocuments: state.opportunityDocuments,
         points: state.points,
         earnedBadges: state.earnedBadges,
         joinedCircleIds: state.joinedCircleIds,
