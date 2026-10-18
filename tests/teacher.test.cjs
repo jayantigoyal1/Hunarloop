@@ -1,0 +1,33 @@
+const test = require("node:test");
+const assert = require("node:assert/strict");
+const { loader, memoryStorage } = require("./module-loader.cjs");
+
+test("teacher actions respect Passport sharing and remain local after reload", () => {
+  global.localStorage = memoryStorage();
+  const store = loader()( "src/lib/store.ts").useAppStore;
+  store.getState().loadDemoProfile();
+  store.getState().verifyTeacherSkill("asha-demo", "repairing things");
+  store.getState().recommendTeacherItem("asha-demo", "activity", "make-repair-card");
+  assert.deepEqual(store.getState().teacherVerifiedSkills, ["drawing"]);
+  assert.deepEqual(store.getState().teacherRecommendations, []);
+  store.getState().setShareWithTeacher(true);
+  store.getState().verifyTeacherSkill("asha-demo", "repairing things");
+  store.getState().recommendTeacherItem("asha-demo", "activity", "make-repair-card");
+  store.getState().recommendTeacherItem("asha-demo", "opportunity", "jaipur-iti-courses");
+  assert.ok(store.getState().teacherVerifiedSkills.includes("repairing things"));
+  assert.equal(store.getState().teacherRecommendations.length, 2);
+  store.getState().createTeacherModule({ title: "  Repair safely  ", format: "hands-on", price: 0 });
+  store.getState().createTeacherModule({ title: "Invalid fee", format: "audio", price: -10 });
+  store.getState().createTeacherModule({ title: "Fractional fee", format: "audio", price: 1.5 });
+  assert.equal(store.getState().teacherModules.length, 1);
+  assert.equal(store.getState().teacherModules[0].title, "Repair safely");
+  assert.equal(store.getState().points, 0);
+  const reloaded = loader()( "src/lib/store.ts").useAppStore;
+  assert.equal(reloaded.getState().teacherModules.length, 1);
+  assert.equal(reloaded.getState().teacherRecommendations.length, 2);
+  reloaded.getState().updateProfile({ skills: ["drawing"] });
+  assert.ok(!reloaded.getState().teacherVerifiedSkills.includes("repairing things"));
+  reloaded.getState().resetDemo();
+  assert.deepEqual(reloaded.getState().teacherModules, []);
+  assert.deepEqual(reloaded.getState().teacherRecommendations, []);
+});

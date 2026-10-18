@@ -44,6 +44,8 @@ src/
 		app-shell.tsx
 		route-page.tsx
 		summary-player.tsx
+		teacher-module-creator.tsx
+		teacher-student-drawer.tsx
 		ui.tsx
 	data/
 		badges.ts
@@ -55,6 +57,7 @@ src/
 		opportunities.ts
 		roadmap.ts
 		student.ts
+		teacher-dashboard.ts
 		teacherStudents.ts
 	lib/
 		community-i18n.ts
@@ -62,12 +65,13 @@ src/
 		parent-summary.ts
 		rewards.ts
 		store.ts
+		teacher-i18n.ts
 		utils.ts
 ```
 
 The header language switch toggles English/Hindi. Its settings menu holds calm mode, the reading font, spoken questions, and the offline demo toggle. These preferences are saved on this device. The student tab bar links to Home, Passport, Careers, Opportunities, and Rewards. `font-dyslexic` uses OpenDyslexic when available on the device and falls back to a readable local font.
 
-Phases 0–8 include welcome, onboarding, the editable Hunar Passport, three playable talent games, game results, learning comfort controls and preview, careers, the weekly roadmap, opportunities with an application assistant, rewards, learning circles, a parent summary, the persisted demo store, and data fixtures. The teacher route remains a placeholder. The offline toggle simulates offline status; it does not cache the site for a fresh offline visit.
+Phases 0–9 include welcome, onboarding, the editable Hunar Passport, three playable talent games, game results, learning comfort controls and preview, careers, the weekly roadmap, opportunities with an application assistant, rewards, learning circles, a parent summary, a teacher dashboard, the persisted demo store, and data fixtures. The offline toggle simulates offline status; it does not cache the site for a fresh offline visit.
 
 The passport saves profile edits, learning choices, sharing preferences, and evidence filenames to localStorage. The mock file picker never reads or uploads file contents. The employer preview uses an explicit allowlist of name, interests, skills, and goals. Teacher sharing is a saved demo preference; no information is sent. Editing a demo teacher-verified skill removes its verification. Run `npm run test:passport` to check persistence, verification, storage failures, and the employer preview boundary.
 
@@ -78,6 +82,8 @@ Raw metrics stay in localStorage. Word reaction times start when the spoken prom
 The `/games/results` page links to confidence-labelled skill suggestions in Passport. `/comfort` offers optional preferences to everyone; support patterns appear after three completed sessions with metrics. Expand **Demo controls** at the bottom of `/games` to find **Simulate 3 sessions**. It requires consent, fills missing sessions up to three, marks them as simulated, and can be used repeatedly without adding duplicates. Rhythm Tap, Noise Choice, and Instruction Recall are roadmap cards.
 
 Phase notes:
+
+Phase 9 adds a desktop-friendly teacher view for eight fictional students, a header role switch, search and activity-pattern filters, and a student detail drawer. "Possible task overwhelm" and "Possible disengagement" are confidence-labelled demo activity patterns, not conclusions about a student. The suggested action asks the student what helps. Asha's live Passport, private support choices, skill validation and referrals are hidden until she enables **Share with teacher** in Passport; other classroom records are fictional shared fixtures. Teacher verification can be undone by removing the skill from Asha's Passport. Module creation, recommendations and opportunity referrals are saved only in localStorage; nothing is published, sold or sent. Opportunity links retain their official source and demo last-verified date. Run `node --test tests/teacher.test.cjs` and `npm run test:browser` for the sharing boundary, persistence, filters and mobile/desktop flows.
 
 Phase 8 adds participation-based rewards, four fictional interest circles, and a parent summary with browser speech playback. Game participation earns ten points per completed session regardless of result; each distinct plan step earns five points once. Badges use onboarding, student-edited Passport, completed sessions, a chosen career, and plan steps. Sensitive game metrics and learning-support signals never contribute to points or badges. Older saved point totals appear as a dated-unknown history item.
 

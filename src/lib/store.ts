@@ -6,6 +6,8 @@ import { sampleStudent } from "@/data/student";
 import { careers } from "@/data/careers";
 import { circles } from "@/data/circles";
 import { circleDetails } from "@/data/circle-activities";
+import { teacherStudents } from "@/data/teacherStudents";
+import { teacherDesk } from "@/data/teacher-dashboard";
 import { badges } from "@/data/badges";
 import { activityBadgeIds, type ActivityEvent } from "@/lib/rewards";
 import { opportunityCatalog, type OpportunityDownload } from "@/data/opportunity-catalog";
@@ -77,6 +79,9 @@ export type PassportEvidence = {
   status: "pending";
 };
 
+export type TeacherModule = { id: string; title: string; format: "audio" | "visual" | "hands-on"; price: number; createdAt: string };
+export type TeacherRecommendation = { studentId: string; kind: "activity" | "opportunity"; itemId: string; createdAt: string };
+
 type AppData = {
   language: Language;
   calmMode: boolean;
@@ -108,6 +113,9 @@ type AppData = {
   learningPreferences: string[];
   shareWithTeacher: boolean;
   focusTimerState: { remainingMs: number; endsAt: number | null };
+  teacherValidatedSkills: Record<string, string[]>;
+  teacherModules: TeacherModule[];
+  teacherRecommendations: TeacherRecommendation[];
 };
 
 type AppActions = {
@@ -148,6 +156,9 @@ type AppActions = {
   pauseFocusTimer: () => void;
   resetFocusTimer: () => void;
   finishFocusTimer: () => void;
+  verifyTeacherSkill: (studentId: string, skill: string) => void;
+  createTeacherModule: (module: Omit<TeacherModule, "id" | "createdAt">) => void;
+  recommendTeacherItem: (studentId: string, kind: TeacherRecommendation["kind"], itemId: string) => void;
 };
 
 type AppState = AppData & AppActions;
@@ -210,6 +221,9 @@ function createInitialData(): AppData {
     learningPreferences: [],
     shareWithTeacher: false,
     focusTimerState: { remainingMs: 600000, endsAt: null },
+    teacherValidatedSkills: {},
+    teacherModules: [],
+    teacherRecommendations: [],
   };
 }
 
@@ -258,6 +272,7 @@ export const useAppStore = create<AppState>()(
         set((state) => ({
           passportEdited: state.passportEdited || Boolean(profile.interests?.length || profile.goals?.length || profile.enjoys?.length),
           teacherVerifiedSkills: state.teacherVerifiedSkills.filter((skill) => (profile.skills ?? state.profile.skills).includes(skill)),
+          teacherValidatedSkills: { ...state.teacherValidatedSkills, "asha-demo": (state.teacherValidatedSkills["asha-demo"] ?? []).filter((skill) => (profile.skills ?? state.profile.skills).includes(skill)) },
           profile: {
             ...state.profile,
             ...profile,
@@ -370,6 +385,27 @@ export const useAppStore = create<AppState>()(
       pauseFocusTimer: () => set((state) => ({ focusTimerState: { remainingMs: state.focusTimerState.endsAt === null ? state.focusTimerState.remainingMs : Math.max(0, state.focusTimerState.endsAt - Date.now()), endsAt: null } })),
       resetFocusTimer: () => set({ focusTimerState: { remainingMs: 600000, endsAt: null } }),
       finishFocusTimer: () => set((state) => state.focusTimerState.endsAt !== null && state.focusTimerState.endsAt <= Date.now() ? { focusTimerState: { remainingMs: 0, endsAt: null } } : state),
+      verifyTeacherSkill: (studentId, skill) => set((state) => {
+        if (!teacherStudents.some((student) => student.id === studentId) || !teacherDesk[studentId]?.pendingSkills.some((item) => item.en === skill)) return state;
+        if (studentId === "asha-demo" && (!state.shareWithTeacher || !state.profile.skills.includes(skill))) return state;
+        const existing = state.teacherValidatedSkills[studentId] ?? [];
+        if (existing.includes(skill)) return state;
+        return {
+          teacherValidatedSkills: { ...state.teacherValidatedSkills, [studentId]: [...existing, skill] },
+          ...(studentId === "asha-demo" ? { teacherVerifiedSkills: [...new Set([...state.teacherVerifiedSkills, skill])] } : {}),
+        };
+      }),
+      createTeacherModule: (module) => set((state) => {
+        const title = module.title.trim();
+        if (!title || title.length > 80 || !["audio", "visual", "hands-on"].includes(module.format) || !Number.isInteger(module.price) || module.price < 0 || module.price > 10000) return state;
+        return { teacherModules: [...state.teacherModules, { ...module, title, price: module.price, id: "module-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7), createdAt: new Date().toISOString() }] };
+      }),
+      recommendTeacherItem: (studentId, kind, itemId) => set((state) => {
+        if (!teacherStudents.some((student) => student.id === studentId) || (studentId === "asha-demo" && !state.shareWithTeacher)) return state;
+        if (kind === "activity" && itemId !== teacherDesk[studentId]?.activityId) return state;
+        if (kind === "opportunity" && !opportunityCatalog.some((item) => item.id === itemId)) return state;
+        return { teacherRecommendations: [...state.teacherRecommendations.filter((item) => item.studentId !== studentId || item.kind !== kind), { studentId, kind, itemId, createdAt: new Date().toISOString() }] };
+      }),
     }),
     {
       name: "hunarloop-preferences",
@@ -382,6 +418,9 @@ export const useAppStore = create<AppState>()(
           ...current, ...previous, comfortSettings,
           activityHistory: previous.activityHistory ?? (previous.points ? [{ id: "legacy-points", kind: "legacy", points: previous.points, occurredAt: null }] : []),
           focusTimerState: { ...current.focusTimerState, ...previous.focusTimerState },
+          teacherValidatedSkills: previous.teacherValidatedSkills ?? {},
+          teacherModules: previous.teacherModules ?? [],
+          teacherRecommendations: previous.teacherRecommendations ?? [],
           calmMode: comfortSettings.calmMode === "accepted",
           dyslexicFont: comfortSettings.readingFont === "accepted",
           audioFirst: comfortSettings.audioInstructions === "pending" ? (previous.audioFirst ?? current.audioFirst) : comfortSettings.audioInstructions === "accepted",
@@ -432,6 +471,9 @@ export const useAppStore = create<AppState>()(
         learningPreferences: state.learningPreferences,
         shareWithTeacher: state.shareWithTeacher,
         focusTimerState: state.focusTimerState,
+        teacherValidatedSkills: state.teacherValidatedSkills,
+        teacherModules: state.teacherModules,
+        teacherRecommendations: state.teacherRecommendations,
       }),
     },
   ),

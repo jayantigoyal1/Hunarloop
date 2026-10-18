@@ -34,6 +34,11 @@ export function AppShell({ children }: { children: ReactNode }) {
   const setOfflineMode = useAppStore((state) => state.setOfflineMode);
   const [online, setOnline] = useState(true);
   const showTabs = !["/", "/onboarding", "/parent", "/teacher"].includes(pathname);
+  const roleLinks = [
+    { href: "/passport", key: "role.student", active: pathname !== "/teacher" && pathname !== "/parent" },
+    { href: "/teacher", key: "role.teacher", active: pathname === "/teacher" },
+    { href: "/parent", key: "role.parent", active: pathname === "/parent" },
+  ];
 
   useEffect(() => {
     const updateStatus = () => setOnline(navigator.onLine);
@@ -52,7 +57,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen bg-paper">
-      <div className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-paper">
+      <div className={`mx-auto flex min-h-screen w-full flex-col bg-paper ${pathname === "/teacher" ? "max-w-6xl" : "max-w-md"}`}>
         <header className="sticky top-0 z-20 border-b border-teal-100 bg-paper/95 px-3 py-2 backdrop-blur">
           <div className="flex min-h-12 items-center justify-between gap-1.5">
             <Link href="/" className="flex min-h-12 items-center gap-1.5 rounded-lg text-ink" aria-label="HunarLoop home">
@@ -77,6 +82,9 @@ export function AppShell({ children }: { children: ReactNode }) {
               <button type="button" onClick={toggleLanguage} className="min-h-12 min-w-12 rounded-lg border border-teal-100 bg-white px-2 text-sm font-extrabold text-ink" aria-label={language === "en" ? "हिन्दी में बदलें" : "Switch to English"}>{language === "en" ? "हिं" : "EN"}</button>
             </div>
           </div>
+          <nav aria-label={translate("role.label")} className="mt-1 grid grid-cols-3 gap-1 border-t border-teal-100 pt-2">
+            {roleLinks.map(({ href, key, active }) => <Link key={href} href={href} aria-current={active ? "page" : undefined} className={`flex min-h-12 items-center justify-center rounded-xl px-2 text-center text-sm font-bold ${active ? "bg-teal-700 text-white" : "bg-white text-teal-800 hover:bg-teal-50"}`}>{translate(key)}</Link>)}
+          </nav>
         </header>
         <main className="flex-1 space-y-3 px-3 pb-5 pt-3">
           {focusTimer && pathname !== "/comfort" && !pathname.startsWith("/games") ? <FocusTimer compact /> : null}
