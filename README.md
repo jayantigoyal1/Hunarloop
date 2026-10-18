@@ -1,167 +1,180 @@
 # HunarLoop
 
-A frontend-only career journey prototype for rural students. The UI uses demo data, stores preferences in localStorage, and requires no API keys or backend.
+**Discover your Hunar. Build it. Earn from it.**
 
-**Demo data disclaimer:** All students, projects, distances, dates, earnings, services and eligibility examples are illustrative. An official source link identifies a provider portal, not verification of the example listing. Check current terms with the provider before acting. No account, message, application or referral is sent by this prototype.
+HunarLoop is a bilingual, voice first career exploration prototype for rural students in India. It helps a student describe their interests, build an editable skills passport, explore varied career paths, follow a practical weekly plan, and find opportunities with visible sources.
 
-## Features and demo flow
+This is a frontend only hackathon project. It uses fictional demo data, requires no backend or API keys, and stores the demo journey in the browser.
 
-1. Choose English or Hindi, then complete consent-based voice/text onboarding or select **Skip to demo student**.
-2. Review and edit the Hunar Passport, including its teacher-sharing choice.
-3. Play a talent game and choose any learning comfort options you want. Suggestions are confidence-labelled and optional.
-4. Compare career paths, choose one, and mark weekly practice steps.
-5. Explore sourced demo opportunities, participation rewards and interest circles.
-6. Listen to the parent summary and open the private teacher dashboard.
+## Why HunarLoop?
 
-The floating **Demo guide** walks through these six steps. After onboarding, Home shows progress, a next step, today's task and points. The header has language, role and offline demo controls.
+Career guidance often assumes reliable internet, strong reading confidence, personal devices, nearby coaching, and family familiarity with new career paths. HunarLoop is designed around a different reality:
 
-## Setup
+- patchy connectivity and low end Android devices;
+- Hindi or English as the preferred language;
+- voice, visual, and hands on ways to respond;
+- travel, cost, device, and connectivity constraints;
+- explainable career suggestions rather than a black box score;
+- family and teacher support without exposing private observations to employers.
 
-From the parent directory, create the requested TypeScript, Tailwind, App Router project with a `src` directory:
+## Demo journey
+
+1. **Welcome and onboarding** — choose English or Hindi, review consent, then answer by voice, options, or text.
+2. **Hunar Passport** — edit interests, skills, goals, constraints, preferences, and evidence.
+3. **Talent games** — play short no reading activities for matching, sequence memory, and attention control.
+4. **Learning Comfort Profile** — accept, reject, or postpone optional learning support suggestions.
+5. **Career discovery** — compare a diverse set of explainable career recommendations.
+6. **Weekly roadmap** — choose audio, visual, or hands on tasks across an eight week plan.
+7. **Opportunities** — filter nearby demo programmes and review eligibility, documents, sources, and verification dates.
+8. **Community and rewards** — join supervised learning circles and celebrate participation milestones.
+9. **Family summary** — listen to a simple bilingual summary of the chosen path, cost, funding, and income range.
+10. **Teacher dashboard** — review fictional class progress, validate shared skills, and suggest activities privately.
+
+Use **Skip to demo student** for the fastest walkthrough. After entering the demo, open **Home → Profile questions** to view or update the onboarding answers. The floating **Demo guide** also provides a six step tour.
+
+## Key features
+
+### Student experience
+
+- Mobile first interface tested at 320px and 360px widths
+- English and Hindi interface with a persistent language switch
+- Browser speech recognition and speech synthesis with text and option fallbacks
+- Editable Hunar Passport with confidence labels and teacher sharing controls
+- Three playable talent games with local raw metrics
+- Optional calm mode, reading font, audio first mode, short lessons, and focus timer
+- Explainable career cards with income sources and practical constraints
+- Eight week roadmap with locally persisted progress and participation points
+- Sourced opportunity cards, local saving, document checklists, and a schematic village map
+- PWA manifest, install icons, offline shell, saved opportunities, and a manual offline demonstration
+
+### Family and educator views
+
+- Bilingual parent audio summary with cost, scholarship, income, and local support information
+- Responsive teacher dashboard for eight fictional students
+- Private support cards, shared Passport details, skill validation, and local recommendations
+- Demo lesson module creator with free or paid format choices
+
+## Safety, privacy, and trust
+
+- Learning support signals are confidence labelled suggestions. They are not medical conclusions.
+- Students can accept, reject, or postpone every suggested accommodation.
+- Sensitive observations stay on the device and are excluded from the employer preview.
+- Points are based on participation and completed actions, never sensitive observations.
+- Points are not a measure of intelligence or employability.
+- Teacher sharing is controlled by the student and saved only as a local demo preference.
+- Every opportunity includes an official source and a **Last verified** date.
+- Income ranges include a visible source label.
+- Evidence files are never uploaded; the prototype stores only locally entered metadata.
+- No account, application, SMS, referral, or message is sent by this project.
+
+## Tech stack
+
+| Area | Technology |
+| --- | --- |
+| Framework | Next.js 14 App Router |
+| Language | TypeScript |
+| UI | React 18 and Tailwind CSS 3 |
+| State | Zustand with localStorage persistence |
+| Motion | Framer Motion |
+| Icons | Lucide React |
+| Voice | Browser Web Speech APIs |
+| Testing | Node test runner and Playwright |
+| Deployment | Vercel |
+
+## Run locally
+
+### Prerequisites
+
+- Node.js 18.17 or newer
+- npm
+- A Chromium based browser for the complete voice and PWA demonstration
+
+### Installation
 
 ```bash
-npx create-next-app@latest hunarloop --typescript --tailwind --eslint --app --src-dir --use-npm
-cd hunarloop
-npm install next@14 react@18 react-dom@18 zustand framer-motion lucide-react
-npm install --save-dev tailwindcss@3.4.17 eslint@8.57.1 eslint-config-next@14.2.35
-```
-
-The project is pinned to Next.js 14 / React 18 and Tailwind 3 for a compatible production build.
-
-## Run
-
-```bash
+git clone https://github.com/jayantigoyal1/Hunarloop.git
+cd Hunarloop
+npm install
 npm run dev
-npm run lint
-npm run build
-npm run test:browser
 ```
 
-## Project Structure
+Open [http://localhost:3000](http://localhost:3000).
+
+No environment variables are required.
+
+## Available commands
+
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Start the local development server |
+| `npm run build` | Create and type check the production build |
+| `npm run start` | Run the production build locally |
+| `npm run test:passport` | Test Passport persistence and privacy boundaries |
+| `npm run test:games` | Test game scoring and stored metrics |
+| `npm run test:browser` | Run the Playwright end to end suite |
+
+Playwright uses Microsoft Edge, starts the production server on port `3100`, and runs the mobile flows at a 360px viewport. The teacher view also has coverage at 320px and desktop width.
+
+## Routes
+
+| Route | Experience |
+| --- | --- |
+| `/` | Welcome screen or the returning student dashboard |
+| `/onboarding` | Consent based voice and text profile questions |
+| `/passport` | Editable Hunar Passport and employer preview |
+| `/games` | Talent games and session controls |
+| `/games/results` | Strength based game summary |
+| `/comfort` | Learning comfort choices and live preview |
+| `/careers` | Explainable career recommendations and comparison |
+| `/roadmap` | Eight week learning and practice plan |
+| `/opportunities` | Filters, village map, and application assistant |
+| `/rewards` | Points, badges, milestones, and real reward links |
+| `/circles` | Facilitator supervised learning groups |
+| `/parent` | Family friendly audio summary |
+| `/teacher` | Responsive fictional class dashboard |
+
+## Project structure
 
 ```text
 src/
-	app/
-		page.tsx
-		loading.tsx
-		onboarding/page.tsx
-		passport/page.tsx
-		games/page.tsx
-		comfort/page.tsx
-		careers/page.tsx
-		roadmap/page.tsx
-		opportunities/page.tsx
-		rewards/page.tsx
-		circles/page.tsx
-		parent/page.tsx
-		teacher/page.tsx
-	components/
-		app-shell.tsx
-		demo-guide.tsx
-		home-dashboard.tsx
-		loading-skeleton.tsx
-		pwa-register.tsx
-		route-page.tsx
-		summary-player.tsx
-		teacher-module-creator.tsx
-		teacher-student-drawer.tsx
-		ui.tsx
-	data/
-		badges.ts
-		careers.ts
-		circle-activities.ts
-		circles.ts
-		demo.ts
-		games.ts
-		opportunities.ts
-		roadmap.ts
-		student.ts
-		teacher-dashboard.ts
-		teacherStudents.ts
-	lib/
-		community-i18n.ts
-		final-i18n.ts
-		i18n.ts
-		parent-summary.ts
-		rewards.ts
-		store.ts
-		teacher-i18n.ts
-		use-connection.ts
-		utils.ts
+├── app/          # App Router pages and global styles
+├── components/   # Shared UI and feature components
+├── data/         # Fictional student, career, plan, and opportunity data
+└── lib/          # Store, i18n, recommendation rules, and utilities
 public/
-	manifest.json
-	sw.js
-	offline.html
-	icons/hunarloop.svg
-	icons/hunarloop-192.png
-	icons/hunarloop-512.png
+├── icons/        # PWA icons
+├── manifest.json
+├── offline.html
+└── sw.js         # App shell service worker
+tests/            # Unit and Playwright browser tests
 ```
 
-The header language switch toggles English/Hindi. Its settings menu holds calm mode, the reading font, spoken questions, and the offline demo toggle. These preferences are saved on this device. The student tab bar links to Home, Passport, Careers, Opportunities, and Rewards. `font-dyslexic` uses OpenDyslexic when available on the device and falls back to a readable local font.
+## How the prototype works
 
-Phases 0–10 include welcome, onboarding, the editable Hunar Passport, three playable talent games, game results, learning comfort controls and preview, careers, the weekly roadmap, opportunities with an application assistant, rewards, learning circles, a parent summary, a teacher dashboard, a guided demo tour, the persisted demo store, and data fixtures.
+Zustand persists the selected language, profile, consent choices, game sessions, comfort settings, chosen career, roadmap progress, saved opportunities, circle membership, rewards, and teacher demo actions in `localStorage`.
 
-## Install and offline behavior
+Career recommendations are deterministic rules over fictional data. A short delay presents the intended AI assisted experience without calling an external model. Match percentages and support confidence labels are illustrative and are never predictions or diagnoses.
 
-The app has a manifest, SVG-derived 192px and 512px icons, and a small service worker. After one connected production visit, the worker caches public page shells and static bundles. A fresh install or a page never cached still needs a connection. Profile answers, game metrics, teacher actions and downloads stay in the browser's localStorage and are never placed in the service-worker cache. Browser storage may be cleared by the user or device; there is no cloud backup. `node render-icons.cjs` regenerates PNG icons from the SVG source using installed Microsoft Edge.
-
-**Simulate offline** gates fresh mock career analysis and live speech recognition and shows an offline badge. Text onboarding, saved plans and downloaded opportunity details remain usable. The toggle does not disconnect the browser. Actual offline behavior needs an installed service worker, a prior connected visit and browser cache support. Browser speech synthesis may still work offline when a local voice is available.
+The service worker caches public routes and static assets after a connected visit. Saved opportunity snapshots and student data remain in `localStorage`; they are not placed in the service worker cache. Clearing browser data resets the journey because the prototype has no cloud backup.
 
 ## Deploy to Vercel
 
-1. Push the repository to GitHub.
-2. In Vercel, choose **Add New → Project**, import this GitHub repository, and set the **Root Directory** to `hunarloop` if the repository contains a parent folder.
-3. Use the **Next.js** framework preset. Keep the default build command (`next build`) and output settings.
-4. Leave environment variables empty; this prototype has no backend or API keys.
-5. Deploy, then open the HTTPS URL once while connected so the PWA shell can cache. Test a second visit offline and verify the manifest and icons in browser developer tools.
+1. Fork or push this repository to GitHub.
+2. In Vercel, select **Add New → Project**.
+3. Import the repository.
+4. Select the **Next.js** framework preset.
+5. Keep the default build and output settings.
+6. Leave environment variables empty.
+7. Deploy and open the HTTPS URL once while connected so the offline shell can install.
 
-Vercel's [Git deployment guide](https://vercel.com/docs/git) describes repository import and framework selection. Next.js documents the [App Router manifest and service worker approach](https://nextjs.org/docs/app/guides/progressive-web-apps).
+If this app sits inside a larger repository, set Vercel's **Root Directory** to the folder containing this `package.json`.
 
-The passport saves profile edits, learning choices, sharing preferences, and evidence filenames to localStorage. The mock file picker never reads or uploads file contents. The employer preview uses an explicit allowlist of name, interests, skills, and goals. Teacher sharing is a saved demo preference; no information is sent. Editing a demo teacher-verified skill removes its verification. Run `npm run test:passport` to check persistence, verification, storage failures, and the employer preview boundary.
+## Demo data disclaimer
 
-Each talent game runs for two minutes of active play. Switching tabs pauses the game; the student resumes when ready. Skip saves partial metrics without adding a completed session or points. Word Pop uses spoken words and picture bubbles, with a picture-matching fallback. Sequence Memory records completed spans and raw sequences. Catch the Star records taps and four 30-second windows; calm mode or reduced-motion preferences use stationary targets.
+All students, profiles, villages, distances, deadlines, programmes, eligibility results, income figures, success stories, support centres, and verification dates shown in HunarLoop are illustrative demo data.
 
-Raw metrics stay in localStorage. Word reaction times start when the spoken prompt ends (or the visual prompt becomes available). Star accuracy is star taps divided by all taps; extra taps count decoys and empty space. The stored `dropOff` is the first window's catch rate minus the last window's catch rate, and is null when either window has no stars. These metrics are never shown as student labels or included in the employer preview.
+Official links identify relevant provider portals. They do not verify the fictional listing or guarantee current eligibility, availability, funding, salary, admission, or employment. Users must confirm current details directly with the official provider before taking action.
 
-The `/games/results` page links to confidence-labelled skill suggestions in Passport. `/comfort` offers optional preferences to everyone; support patterns appear after three completed sessions with metrics. Expand **Demo controls** at the bottom of `/games` to find **Simulate 3 sessions**. It requires consent, fills missing sessions up to three, marks them as simulated, and can be used repeatedly without adding duplicates. Rhythm Tap, Noise Choice, and Instruction Recall are roadmap cards.
+---
 
-Phase notes:
-
-Phase 9 adds a desktop-friendly teacher view for eight fictional students, a header role switch, search and activity-pattern filters, and a student detail drawer. "Possible task overwhelm" and "Possible disengagement" are confidence-labelled demo activity patterns, not conclusions about a student. The suggested action asks the student what helps. Asha's live Passport, private support choices, skill validation and referrals are hidden until she enables **Share with teacher** in Passport; other classroom records are fictional shared fixtures. Teacher verification can be undone by removing the skill from Asha's Passport. Module creation, recommendations and opportunity referrals are saved only in localStorage; nothing is published, sold or sent. Opportunity links retain their official source and demo last-verified date. Run `node --test tests/teacher.test.cjs` and `npm run test:browser` for the sharing boundary, persistence, filters and mobile/desktop flows.
-
-Phase 8 adds participation-based rewards, four fictional interest circles, and a parent summary with browser speech playback. Game participation earns ten points per completed session regardless of result; each distinct plan step earns five points once. Badges use onboarding, student-edited Passport, completed sessions, a chosen career, and plan steps. Sensitive game metrics and learning-support signals never contribute to points or badges. Older saved point totals appear as a dated-unknown history item.
-
-Circle membership, reports, and showcase hiding are local demo actions; no facilitator receives them. All showcase entries are fictional and show first name and initial only. The parent transcript contains the chosen career, illustrative cost, a scholarship enquiry, and a sourced demo income range. The optional family-led support card appears only after support patterns are available; it does not name a condition or send a referral. The district hospital/DEIC location, fee, and age eligibility are unverified demo examples; confirm directly before travel. References: [National Career Service](https://www.ncs.gov.in/) and [National Health Mission DEIC guidance](https://www.nhm.gov.in/images/pdf/programmes/RBSK/Operational_Guidelines/Operational-Guidelines-DEIC-RBSK.pdf).
-
-Run `node --test tests/community.test.cjs` for participation rewards, persistence, circle matching, and parent-summary privacy. Browser tests cover rewards, circle membership and reporting, and parent speech controls in both languages.
-
-Phase 7 adds opportunity filters (type, 0–50 km, women/girls, next seven days, learning accommodations/rights information and saved items), a schematic village map and a keyboard-accessible application drawer. Map numbers match the cards; three distance bands are illustrative rather than geographic bearings. Online listings remain available in the 0 km filter.
-
-The catalog preserves official provider URLs and explicitly unverified demo verification dates. Its sample deadlines and distances support the demonstration only. Countdown labels use India calendar days; expired and undated entries do not appear under deadline-soon. Support flags describe demo information to ask about, not confirmed facilities or legal eligibility.
-
-Eligibility uses the labelled Asha fixture (16, Class 10, Rajasthan), with explicit match, unmet condition and unknown states. Gender is not inferred from her name. All sample thresholds and provider approvals must be checked officially. Document checkmarks persist locally without collecting files or sensitive document contents. The SMS button only shows a toast: nothing is sent or scheduled.
-
-Saving stores a complete listing snapshot and timestamp in localStorage. Manual offline mode, or the browser's offline event, blocks non-downloaded details and all external links. Downloaded details and document checks remain usable; removing a saved item removes its snapshot. The service worker added in Phase 10 enables a fresh offline launch after a connected visit installs and fills the cache. Legacy saved IDs without snapshots can be downloaded again while online.
-
-Run `node --test tests/opportunities.test.cjs` for filters, countdown boundaries, eligibility, persistence, offline download blocking and map target spacing. Mobile browser tests cover the drawer focus trap, pin selection, Hindi, checklists, mock SMS and offline removal.
-
-Phase 6 implements careers and the eight-week roadmap. Each route ranks six demo careers with at most two per category, using profile keywords and illustrative travel/budget rules. Match percentages are not predictions; distances are fictional and training availability is unverified. Compare two careers and choose one to open its plan. All available careers have eight bilingual weeks, sixteen milestones and a distinct safe practice project.
-
-Roadmap format can be Audio, Visual or Hands-on. Accepted comfort choices guide the initial format and optional single-week view; choosing another format remains possible. The CSS bars show completed practice grouped into basics, practical skills and training readiness, not measured ability. Each milestone awards five points once; unchecking does not reclaim or re-award points. Completion and reward history are separate per career and persist on this device.
-
-Suggested course topics, practice assessments and provider certificates are demo recommendations. Official discovery sources checked on 2026-10-18: [Skill India Digital Hub](https://www.skillindiadigital.gov.in/), [DGT Craftsmen Training Scheme](https://dgt.gov.in/hi/CTS), and [RPSC](https://rpsc.rajasthan.gov.in/). This verifies portal references only, not enrolment, fees, eligibility, current courses or a specific credential.
-
-Run `node --test tests/pathways.test.cjs` for recommendation diversity, bilingual plan completeness and reward/persistence checks. The browser suite covers comparison, all route tabs, career selection, roadmap formats, Hindi and comfort-driven chunking at 360px.
-
-Phase 5 adds optional comfort settings, confidence-labelled support clusters, a live lesson preview, read-aloud controls, and a persistent ten-minute focus timer. Choices are available without playing games. Three real sessions of the same game can raise its demo confidence label to Medium; simulations remain Low and sensory comfort is never inferred. This rule is not validated. Settings never change rewards or employer-visible data. Later phases connect these choices to the plan, parent summary and private teacher view.
-
-Run `node --test tests/comfort.test.cjs` for confidence, persistence, timer and reward checks. Browser checks also cover adapted lessons, global preferences, Hindi audio fallback and the timer at 360px.
-
-```bash
-npm run test:passport
-npm run test:games
-npm run build
-npm run test:browser
-```
-
-Browser tests use an installed Microsoft Edge, a 360px viewport, mocked speech, and a controlled clock. They launch the production server on port 3100 and stop it afterward. Real device voices depend on the browser; the picture fallback remains available.
+Built as a hackathon prototype for inclusive, student controlled career exploration.
