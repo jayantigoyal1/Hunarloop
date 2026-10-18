@@ -162,12 +162,13 @@ The service worker caches public routes and static assets after a connected visi
 1. Fork or push this repository to GitHub.
 2. In Vercel, select **Add New → Project**.
 3. Import the repository.
-4. Select the **Next.js** framework preset.
-5. Keep the default build and output settings.
-6. Leave environment variables empty.
-7. Deploy and open the HTTPS URL once while connected so the offline shell can install.
+4. Leave **Root Directory** empty so Vercel uses the repository root (`./`). Do not enter `hunarloop`; this repository already contains `package.json` at its root.
+5. Select the **Next.js** framework preset.
+6. Keep the default build command (`npm run build`) and output settings.
+7. Leave environment variables empty.
+8. Deploy and open the HTTPS URL once while connected so the offline shell can install.
 
-If this app sits inside a larger repository, set Vercel's **Root Directory** to the folder containing this `package.json`.
+Use Node.js 20 or 22 in Vercel. No install override, output directory, or environment variable is needed.
 
 ## Demo data disclaimer
 
