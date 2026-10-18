@@ -2,7 +2,10 @@
 
 import { useRouter } from "next/navigation";
 import { ArrowRight, Sparkles } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Card, DemoBadge } from "@/components/ui";
+import { HomeDashboard } from "@/components/home-dashboard";
+import { LoadingSkeleton } from "@/components/loading-skeleton";
 import { useT } from "@/lib/i18n";
 import { useAppStore } from "@/lib/store";
 
@@ -12,6 +15,11 @@ export default function WelcomePage() {
   const language = useAppStore((state) => state.language);
   const setLanguage = useAppStore((state) => state.setLanguage);
   const loadDemoProfile = useAppStore((state) => state.loadDemoProfile);
+  const onboardingDone = useAppStore((state) => state.onboardingDone);
+  const [ready, setReady] = useState(false);
+  useEffect(() => setReady(true), []);
+  if (!ready) return <LoadingSkeleton label={translate("common.loading")} />;
+  if (onboardingDone) return <HomeDashboard />;
 
   return (
     <div className="mx-auto flex max-w-sm flex-col gap-4 pb-4 pt-2">
@@ -21,7 +29,7 @@ export default function WelcomePage() {
             <span className="grid h-12 w-12 place-items-center rounded-xl bg-teal-700 text-xl font-black text-white" aria-hidden="true">ह</span>
             <div>
               <p className="text-xl font-black leading-tight text-ink">HunarLoop</p>
-              <p className="text-xs font-semibold text-ink/65">{translate("home.eyebrow")}</p>
+              <p className="text-xs font-semibold text-ink/80">{translate("home.eyebrow")}</p>
             </div>
           </div>
           <DemoBadge />

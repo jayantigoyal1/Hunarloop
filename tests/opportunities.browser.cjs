@@ -59,7 +59,7 @@ test("offline shows downloaded details and blocks unsaved listings and external 
   await page.getByRole("dialog").getByRole("button", { name: "Save & download", exact: true }).click();
   await page.keyboard.press("Escape");
   await page.getByLabel("Settings", { exact: true }).click();
-  await page.getByRole("checkbox", { name: "Offline demo", exact: true }).check();
+  await page.getByRole("checkbox", { name: "Simulate offline", exact: true }).check();
   await page.getByLabel("Settings", { exact: true }).click();
   await expect(page.getByRole("button", { name: /^Map pin 5:/ })).toBeDisabled();
   await page.getByRole("button", { name: /^Map pin 3:/ }).click();

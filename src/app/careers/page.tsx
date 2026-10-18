@@ -2,17 +2,21 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Compass, MapPin, Sparkles } from "lucide-react";
 import { Badge, Button, Card, DemoBadge } from "@/components/ui";
 import { careers, type Career } from "@/data/careers";
 import { careerDetails, recommendCareers, type CareerRoute } from "@/lib/career-engine";
 import { useT } from "@/lib/i18n";
 import { useAppStore } from "@/lib/store";
+import { useConnection } from "@/lib/use-connection";
+import { LoadingSkeleton } from "@/components/loading-skeleton";
 
 export default function CareersPage() {
   const t = useT();
   const router = useRouter();
   const state = useAppStore();
+  const { available } = useConnection();
   const [loading, setLoading] = useState(true);
   const [route, setRoute] = useState<CareerRoute>("nearby");
   const [compared, setCompared] = useState<string[]>([]);
@@ -22,7 +26,8 @@ export default function CareersPage() {
   const choose = (id: string) => { state.setChosenCareerId(id); router.push("/roadmap"); };
   const time = (career: Career) => state.language === "hi" ? careerDetails[career.id].timeHi : career.timeToFirstIncome;
   const selected = compared.map((id) => careers.find((career) => career.id === id)!).filter(Boolean);
-  if (loading) return <Card className="my-8 space-y-5 text-center" role="status"><Sparkles className="mx-auto animate-pulse text-teal-700" size={36} aria-hidden="true" /><DemoBadge /><h1 className="text-xl font-bold">{t("paths.analysing")}</h1><p className="text-sm">{t("paths.mock")}</p></Card>;
+  if (!available) return <Card tone="hero" className="my-8 space-y-4"><DemoBadge /><h1 className="text-2xl font-extrabold">{t("paths.offlineTitle")}</h1><p className="leading-6">{t("paths.offlineText")}</p>{state.chosenCareerId ? <Link href="/roadmap" className="flex min-h-12 items-center justify-center rounded-xl bg-teal-700 px-4 font-bold text-white">{t("paths.savedPlan")}</Link> : <Link href="/passport" className="flex min-h-12 items-center font-bold text-teal-700 underline">{t("nav.passport")}</Link>}</Card>;
+  if (loading) return <div className="my-8 space-y-4" role="status"><Card className="space-y-3 text-center"><Sparkles className="mx-auto text-teal-700" size={36} aria-hidden="true" /><DemoBadge /><h1 className="text-xl font-bold">{t("paths.analysing")}</h1><p className="text-sm">{t("paths.mock")}</p></Card><LoadingSkeleton label={t("paths.analysing")} /></div>;
   return <div className="space-y-5 pb-4">
     <Card tone="hero" className="space-y-3"><div className="flex items-center justify-between"><DemoBadge /><Compass size={28} aria-hidden="true" /></div><h1 className="text-3xl font-extrabold">{t("paths.title")}</h1><p>{t("paths.intro")}</p><p className="text-sm leading-6">{t("paths.mock")}</p></Card>
     <div role="tablist" aria-label={t("paths.routes")} className="grid grid-cols-3 gap-1 rounded-xl bg-teal-50 p-1">

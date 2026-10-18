@@ -2,13 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { BriefcaseBusiness, Gift, House, IdCard, Settings2, Wifi, WifiOff } from "lucide-react";
 import { useT } from "@/lib/i18n";
 import { useAppStore } from "@/lib/store";
 import { Badge } from "@/components/ui";
 import { FocusTimer } from "@/components/focus-timer";
 import { ReadAloud } from "@/components/read-aloud";
+import { DemoGuide } from "@/components/demo-guide";
+import { useConnection } from "@/lib/use-connection";
 
 const studentTabs = [
   { href: "/", key: "nav.home", Icon: House },
@@ -32,8 +34,9 @@ export function AppShell({ children }: { children: ReactNode }) {
   const setAudioFirst = useAppStore((state) => state.setAudioFirst);
   const offlineMode = useAppStore((state) => state.offlineMode);
   const setOfflineMode = useAppStore((state) => state.setOfflineMode);
-  const [online, setOnline] = useState(true);
-  const showTabs = !["/", "/onboarding", "/parent", "/teacher"].includes(pathname);
+  const { available, online, simulated } = useConnection();
+  const onboardingDone = useAppStore((state) => state.onboardingDone);
+  const showTabs = !["/onboarding", "/parent", "/teacher"].includes(pathname) && (pathname !== "/" || onboardingDone);
   const roleLinks = [
     { href: "/passport", key: "role.student", active: pathname !== "/teacher" && pathname !== "/parent" },
     { href: "/teacher", key: "role.teacher", active: pathname === "/teacher" },
@@ -41,15 +44,19 @@ export function AppShell({ children }: { children: ReactNode }) {
   ];
 
   useEffect(() => {
-    const updateStatus = () => setOnline(navigator.onLine);
-    updateStatus();
-    window.addEventListener("online", updateStatus);
-    window.addEventListener("offline", updateStatus);
-    return () => {
-      window.removeEventListener("online", updateStatus);
-      window.removeEventListener("offline", updateStatus);
+    if (available) return;
+    const followCachedPage = (event: MouseEvent) => {
+      if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || !(event.target instanceof Element)) return;
+      const anchor = event.target.closest("a[href]");
+      if (!anchor || anchor.hasAttribute("download") || anchor.getAttribute("target")) return;
+      const url = new URL(anchor.getAttribute("href")!, location.href);
+      if (url.origin !== location.origin) return;
+      event.preventDefault();
+      location.assign(url.href);
     };
-  }, []);
+    document.addEventListener("click", followCachedPage, true);
+    return () => document.removeEventListener("click", followCachedPage, true);
+  }, [available]);
 
   useEffect(() => {
     document.documentElement.lang = language === "hi" ? "hi" : "en";
@@ -58,15 +65,16 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-paper">
       <div className={`mx-auto flex min-h-screen w-full flex-col bg-paper ${pathname === "/teacher" ? "max-w-6xl" : "max-w-md"}`}>
+        <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50 focus:flex focus:min-h-12 focus:items-center focus:rounded-xl focus:bg-white focus:px-4 focus:font-bold focus:text-teal-800">{translate("a11y.skip")}</a>
         <header className="sticky top-0 z-20 border-b border-teal-100 bg-paper/95 px-3 py-2 backdrop-blur">
           <div className="flex min-h-12 items-center justify-between gap-1.5">
-            <Link href="/" className="flex min-h-12 items-center gap-1.5 rounded-lg text-ink" aria-label="HunarLoop home">
+            <Link href="/" className="flex min-h-12 items-center gap-1.5 rounded-lg text-ink" aria-label={`${translate("brand.name")} · ${translate("nav.home")}`}>
               <span className="grid h-8 w-8 place-items-center rounded-lg bg-teal-600 text-sm font-black text-white">ह</span>
               <span className="text-base font-extrabold">{translate("brand.name")}</span>
             </Link>
             <div className="flex items-center gap-1.5">
-              <Badge className={online && !offlineMode ? "gap-1 bg-teal-50" : "gap-1 bg-coral/15 text-ink"}>
-                {online && !offlineMode ? <Wifi size={14} aria-hidden="true" /> : <WifiOff size={14} aria-hidden="true" />}{translate(online && !offlineMode ? "header.online" : "header.offline")}
+              <Badge className={`max-w-24 gap-1 ${available ? "bg-teal-50" : "bg-coral/15 text-ink"}`}>
+                {available ? <Wifi size={14} className="shrink-0" aria-hidden="true" /> : <WifiOff size={14} className="shrink-0" aria-hidden="true" />}<span className="truncate" role="status">{translate(!online ? "header.offline" : simulated ? "header.simulated" : "header.online")}</span>
               </Badge>
               <details className="group relative">
                 <summary className="grid min-h-12 min-w-12 cursor-pointer list-none place-items-center rounded-lg text-teal-700 hover:bg-teal-50 [&::-webkit-details-marker]:hidden" aria-label={translate("header.settings")} title={translate("header.settings")}><Settings2 size={20} aria-hidden="true" /></summary>
@@ -85,14 +93,16 @@ export function AppShell({ children }: { children: ReactNode }) {
           <nav aria-label={translate("role.label")} className="mt-1 grid grid-cols-3 gap-1 border-t border-teal-100 pt-2">
             {roleLinks.map(({ href, key, active }) => <Link key={href} href={href} aria-current={active ? "page" : undefined} className={`flex min-h-12 items-center justify-center rounded-xl px-2 text-center text-sm font-bold ${active ? "bg-teal-700 text-white" : "bg-white text-teal-800 hover:bg-teal-50"}`}>{translate(key)}</Link>)}
           </nav>
+          {!available ? <p role="status" className="mt-2 rounded-lg bg-sun/25 p-2 text-xs leading-5 text-ink">{translate("header.offlineHelp")}</p> : null}
         </header>
-        <main className="flex-1 space-y-3 px-3 pb-5 pt-3">
+        <main id="main-content" tabIndex={-1} className="flex-1 space-y-3 px-3 pb-5 pt-3">
           {focusTimer && pathname !== "/comfort" && !pathname.startsWith("/games") ? <FocusTimer compact /> : null}
           {audioFirst && !["/", "/onboarding", "/comfort", "/parent"].includes(pathname) && !pathname.startsWith("/games") ? <ReadAloud label={translate("comfort.readPage")} text={() => document.querySelector<HTMLElement>("[data-page-content]")?.innerText ?? ""} /> : null}
-          <div data-page-content>{children}</div>
+          <div key={pathname} data-page-content className="page-enter">{children}</div>
         </main>
+        {!pathname.startsWith("/games") && pathname !== "/onboarding" ? <DemoGuide /> : null}
         {showTabs ? (
-          <nav aria-label="Student navigation" className="sticky bottom-0 z-20 border-t border-teal-100 bg-white/95 px-1 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-1 backdrop-blur">
+          <nav aria-label={translate("a11y.studentNav")} className="sticky bottom-0 z-20 border-t border-teal-100 bg-white/95 px-1 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-1 backdrop-blur">
             <ul className="grid grid-cols-5 gap-0.5">
               {studentTabs.map(({ href, key, Icon }) => {
                 const active = pathname === href;

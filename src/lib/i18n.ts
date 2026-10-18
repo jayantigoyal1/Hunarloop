@@ -8,6 +8,7 @@ import { pathwayMessages } from "@/lib/pathway-i18n";
 import { opportunityMessages } from "@/lib/opportunity-i18n";
 import { communityMessages } from "@/lib/community-i18n";
 import { teacherMessages } from "@/lib/teacher-i18n";
+import { finalMessages } from "@/lib/final-i18n";
 
 const messages = {
   en: {
@@ -18,7 +19,8 @@ const messages = {
     ...opportunityMessages.en,
     ...communityMessages.en,
     ...teacherMessages.en,
-    "brand.name": "HunarLoop", "header.online": "Online", "header.offline": "Offline", "header.calm": "Calm mode", "header.settings": "Settings", "header.font": "Reading font", "header.audio": "Speak questions", "header.offlineDemo": "Offline demo",
+    ...finalMessages.en,
+    "brand.name": "HunarLoop", "header.online": "Online", "header.offline": "Offline", "header.calm": "Calm mode", "header.settings": "Settings", "header.font": "Reading font", "header.audio": "Speak questions", "header.offlineDemo": "Simulate offline",
     "nav.home": "Home", "nav.passport": "Passport", "nav.careers": "Careers", "nav.opportunities": "Opportunities", "nav.rewards": "Rewards",
     "home.eyebrow": "YOUR SKILLS. YOUR FUTURE.", "home.title": "Every strength has a next step.",
     "home.description": "Explore your strengths and choose a path that fits.", "home.start": "Start my journey",
@@ -80,7 +82,8 @@ const messages = {
     ...opportunityMessages.hi,
     ...communityMessages.hi,
     ...teacherMessages.hi,
-    "brand.name": "हुनरLoop", "header.online": "ऑनलाइन", "header.offline": "ऑफ़लाइन", "header.calm": "शांत मोड", "header.settings": "सेटिंग्स", "header.font": "पढ़ने का फ़ॉन्ट", "header.audio": "सवाल सुनाएं", "header.offlineDemo": "ऑफ़लाइन डेमो",
+    ...finalMessages.hi,
+    "brand.name": "हुनरLoop", "header.online": "ऑनलाइन", "header.offline": "ऑफ़लाइन", "header.calm": "शांत मोड", "header.settings": "सेटिंग्स", "header.font": "पढ़ने का फ़ॉन्ट", "header.audio": "सवाल सुनाएं", "header.offlineDemo": "ऑफ़लाइन का डेमो",
     "nav.home": "होम", "nav.passport": "पासपोर्ट", "nav.careers": "करियर", "nav.opportunities": "अवसर", "nav.rewards": "इनाम",
     "home.eyebrow": "आपका हुनर। आपका भविष्य।", "home.title": "हर खूबी का अगला कदम है।",
     "home.description": "अपनी खूबियां जानें और अपने लिए सही रास्ता चुनें।", "home.start": "मेरी यात्रा शुरू करें",

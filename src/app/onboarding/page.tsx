@@ -6,6 +6,7 @@ import { ArrowLeft, ArrowRight, LoaderCircle, Mic, MicOff, Volume2 } from "lucid
 import { Badge, Card } from "@/components/ui";
 import { t } from "@/lib/i18n";
 import { useAppStore } from "@/lib/store";
+import { useConnection } from "@/lib/use-connection";
 
 type Answer = string | string[];
 type AnswerKey = "name" | "village" | "district" | "interests" | "enjoys" | "goals" | "budget" | "transport" | "device" | "connectivity";
@@ -83,6 +84,7 @@ export default function OnboardingPage() {
 	const consent = useAppStore((state) => state.onboardingConsent);
 	const audioFirst = useAppStore((state) => state.audioFirst);
 	const setConsent = useAppStore((state) => state.setOnboardingConsent);
+	const { available } = useConnection();
 	const [stage, setStage] = useState<"consent" | "questions" | "building">("consent");
 	const [answers, setAnswers] = useState<OnboardingAnswers>(emptyAnswers);
 	const [questionIndex, setQuestionIndex] = useState(0);
@@ -114,6 +116,7 @@ export default function OnboardingPage() {
 		recognitionRef.current?.stop();
 		window.speechSynthesis?.cancel();
 	}, []);
+	useEffect(() => { if (!available) { recognitionRef.current?.stop(); setIsListening(false); } }, [available]);
 
 	const speakQuestion = () => {
 		if (!("speechSynthesis" in window) || typeof SpeechSynthesisUtterance === "undefined") return;
@@ -163,6 +166,7 @@ export default function OnboardingPage() {
 	};
 
 	const startListening = () => {
+		if (!available) return;
 		const speechWindow = window as SpeechWindow;
 		const Recognition = speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition;
 		if (!Recognition) return;
@@ -237,7 +241,7 @@ export default function OnboardingPage() {
 	if (stage === "building") {
 		return <div className="mx-auto flex min-h-[55vh] max-w-sm flex-col items-center justify-center gap-4 text-center" aria-live="polite">
 			<LoaderCircle className="animate-spin text-teal-700" size={40} aria-hidden="true" />
-			<h1 className="text-xl font-black text-ink">{tForLanguage("onboarding.building")}</h1>
+			<h1 className="text-xl font-black text-ink">{tForLanguage(available ? "onboarding.building" : "onboarding.localBuilding")}</h1>
 			<p className="text-sm text-ink/70">{tForLanguage("onboarding.buildingNote")}</p>
 		</div>;
 	}
@@ -271,6 +275,7 @@ export default function OnboardingPage() {
 				<div className="flex items-start justify-between gap-2"><h1 className="text-xl font-black leading-tight text-ink">{tForLanguage(question.promptKey)}</h1><button type="button" onClick={speakQuestion} className="grid min-h-12 min-w-12 shrink-0 place-items-center rounded-lg bg-teal-50 text-teal-700" aria-label={tForLanguage("onboarding.speakQuestion")} title={tForLanguage("onboarding.speakQuestion")}><Volume2 size={20} aria-hidden="true" /></button></div>
 				{question.multiple ? <p className="text-xs leading-4 text-ink/65">{tForLanguage("onboarding.multipleHint")}</p> : null}
 				{speechChecked && !speechSupported ? <p className="rounded-lg bg-sun/25 px-3 py-2 text-xs leading-4 text-ink/80" role="note">{tForLanguage("onboarding.voiceUnsupported")}</p> : null}
+				{!available ? <p className="rounded-lg bg-sun/25 px-3 py-2 text-xs leading-4 text-ink" role="status">{tForLanguage("onboarding.voiceOffline")}</p> : null}
 				{question.options ? <div className="flex flex-wrap gap-2">
 					{question.options.map((option) => {
 						const selected = Array.isArray(currentAnswer) ? currentAnswer.includes(option.value) : currentAnswer === option.value;
@@ -282,7 +287,7 @@ export default function OnboardingPage() {
 					<input value={currentText} onChange={(event) => updateAnswer(question.multiple ? event.target.value.split(",").map((item) => item.trim()).filter(Boolean) : event.target.value)} placeholder={tForLanguage("onboarding.inputPlaceholder")} className="min-h-12 w-full rounded-lg border border-teal-200 bg-paper px-3 py-3 text-base text-ink placeholder:text-ink/45" autoComplete="off" />
 				</label>
 				{speechSupported ? <div className="flex items-center gap-3">
-					<button type="button" onClick={isListening ? stopListening : startListening} className={`grid h-14 w-14 shrink-0 place-items-center rounded-full text-white ${isListening ? "bg-clay" : "bg-teal-700 hover:bg-teal-600"}`} aria-label={tForLanguage(isListening ? "onboarding.micStop" : "onboarding.micStart")}>
+					<button type="button" disabled={!available} onClick={isListening ? stopListening : startListening} className={`grid h-14 w-14 shrink-0 place-items-center rounded-full text-white disabled:cursor-not-allowed disabled:opacity-50 ${isListening ? "bg-clay" : "bg-teal-700 hover:bg-teal-600"}`} aria-label={tForLanguage(isListening ? "onboarding.micStop" : "onboarding.micStart")}>
 						{isListening ? <MicOff size={23} aria-hidden="true" /> : <Mic size={23} aria-hidden="true" />}
 					</button>
 					<div className="min-h-10 flex-1" aria-live="polite">

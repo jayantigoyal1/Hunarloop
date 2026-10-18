@@ -2,6 +2,19 @@
 
 A frontend-only career journey prototype for rural students. The UI uses demo data, stores preferences in localStorage, and requires no API keys or backend.
 
+**Demo data disclaimer:** All students, projects, distances, dates, earnings, services and eligibility examples are illustrative. An official source link identifies a provider portal, not verification of the example listing. Check current terms with the provider before acting. No account, message, application or referral is sent by this prototype.
+
+## Features and demo flow
+
+1. Choose English or Hindi, then complete consent-based voice/text onboarding or select **Skip to demo student**.
+2. Review and edit the Hunar Passport, including its teacher-sharing choice.
+3. Play a talent game and choose any learning comfort options you want. Suggestions are confidence-labelled and optional.
+4. Compare career paths, choose one, and mark weekly practice steps.
+5. Explore sourced demo opportunities, participation rewards and interest circles.
+6. Listen to the parent summary and open the private teacher dashboard.
+
+The floating **Demo guide** walks through these six steps. After onboarding, Home shows progress, a next step, today's task and points. The header has language, role and offline demo controls.
+
 ## Setup
 
 From the parent directory, create the requested TypeScript, Tailwind, App Router project with a `src` directory:
@@ -21,6 +34,7 @@ The project is pinned to Next.js 14 / React 18 and Tailwind 3 for a compatible p
 npm run dev
 npm run lint
 npm run build
+npm run test:browser
 ```
 
 ## Project Structure
@@ -29,6 +43,7 @@ npm run build
 src/
 	app/
 		page.tsx
+		loading.tsx
 		onboarding/page.tsx
 		passport/page.tsx
 		games/page.tsx
@@ -42,6 +57,10 @@ src/
 		teacher/page.tsx
 	components/
 		app-shell.tsx
+		demo-guide.tsx
+		home-dashboard.tsx
+		loading-skeleton.tsx
+		pwa-register.tsx
 		route-page.tsx
 		summary-player.tsx
 		teacher-module-creator.tsx
@@ -61,17 +80,42 @@ src/
 		teacherStudents.ts
 	lib/
 		community-i18n.ts
+		final-i18n.ts
 		i18n.ts
 		parent-summary.ts
 		rewards.ts
 		store.ts
 		teacher-i18n.ts
+		use-connection.ts
 		utils.ts
+public/
+	manifest.json
+	sw.js
+	offline.html
+	icons/hunarloop.svg
+	icons/hunarloop-192.png
+	icons/hunarloop-512.png
 ```
 
 The header language switch toggles English/Hindi. Its settings menu holds calm mode, the reading font, spoken questions, and the offline demo toggle. These preferences are saved on this device. The student tab bar links to Home, Passport, Careers, Opportunities, and Rewards. `font-dyslexic` uses OpenDyslexic when available on the device and falls back to a readable local font.
 
-Phases 0–9 include welcome, onboarding, the editable Hunar Passport, three playable talent games, game results, learning comfort controls and preview, careers, the weekly roadmap, opportunities with an application assistant, rewards, learning circles, a parent summary, a teacher dashboard, the persisted demo store, and data fixtures. The offline toggle simulates offline status; it does not cache the site for a fresh offline visit.
+Phases 0–10 include welcome, onboarding, the editable Hunar Passport, three playable talent games, game results, learning comfort controls and preview, careers, the weekly roadmap, opportunities with an application assistant, rewards, learning circles, a parent summary, a teacher dashboard, a guided demo tour, the persisted demo store, and data fixtures.
+
+## Install and offline behavior
+
+The app has a manifest, SVG-derived 192px and 512px icons, and a small service worker. After one connected production visit, the worker caches public page shells and static bundles. A fresh install or a page never cached still needs a connection. Profile answers, game metrics, teacher actions and downloads stay in the browser's localStorage and are never placed in the service-worker cache. Browser storage may be cleared by the user or device; there is no cloud backup. `node render-icons.cjs` regenerates PNG icons from the SVG source using installed Microsoft Edge.
+
+**Simulate offline** gates fresh mock career analysis and live speech recognition and shows an offline badge. Text onboarding, saved plans and downloaded opportunity details remain usable. The toggle does not disconnect the browser. Actual offline behavior needs an installed service worker, a prior connected visit and browser cache support. Browser speech synthesis may still work offline when a local voice is available.
+
+## Deploy to Vercel
+
+1. Push the repository to GitHub.
+2. In Vercel, choose **Add New → Project**, import this GitHub repository, and set the **Root Directory** to `hunarloop` if the repository contains a parent folder.
+3. Use the **Next.js** framework preset. Keep the default build command (`next build`) and output settings.
+4. Leave environment variables empty; this prototype has no backend or API keys.
+5. Deploy, then open the HTTPS URL once while connected so the PWA shell can cache. Test a second visit offline and verify the manifest and icons in browser developer tools.
+
+Vercel's [Git deployment guide](https://vercel.com/docs/git) describes repository import and framework selection. Next.js documents the [App Router manifest and service worker approach](https://nextjs.org/docs/app/guides/progressive-web-apps).
 
 The passport saves profile edits, learning choices, sharing preferences, and evidence filenames to localStorage. The mock file picker never reads or uploads file contents. The employer preview uses an explicit allowlist of name, interests, skills, and goals. Teacher sharing is a saved demo preference; no information is sent. Editing a demo teacher-verified skill removes its verification. Run `npm run test:passport` to check persistence, verification, storage failures, and the employer preview boundary.
 
@@ -97,7 +141,7 @@ The catalog preserves official provider URLs and explicitly unverified demo veri
 
 Eligibility uses the labelled Asha fixture (16, Class 10, Rajasthan), with explicit match, unmet condition and unknown states. Gender is not inferred from her name. All sample thresholds and provider approvals must be checked officially. Document checkmarks persist locally without collecting files or sensitive document contents. The SMS button only shows a toast: nothing is sent or scheduled.
 
-Saving stores a complete listing snapshot and timestamp in localStorage. Manual offline mode, or the browser's offline event, blocks non-downloaded details and all external links. Downloaded details and document checks remain usable; removing a saved item removes its snapshot. A fresh offline site launch still needs a separate service-worker/cache feature. Legacy saved IDs without snapshots can be downloaded again while online.
+Saving stores a complete listing snapshot and timestamp in localStorage. Manual offline mode, or the browser's offline event, blocks non-downloaded details and all external links. Downloaded details and document checks remain usable; removing a saved item removes its snapshot. The service worker added in Phase 10 enables a fresh offline launch after a connected visit installs and fills the cache. Legacy saved IDs without snapshots can be downloaded again while online.
 
 Run `node --test tests/opportunities.test.cjs` for filters, countdown boundaries, eligibility, persistence, offline download blocking and map target spacing. Mobile browser tests cover the drawer focus trap, pin selection, Hindi, checklists, mock SMS and offline removal.
 
@@ -109,7 +153,7 @@ Suggested course topics, practice assessments and provider certificates are demo
 
 Run `node --test tests/pathways.test.cjs` for recommendation diversity, bilingual plan completeness and reward/persistence checks. The browser suite covers comparison, all route tabs, career selection, roadmap formats, Hindi and comfort-driven chunking at 360px.
 
-Phase 5 adds six optional comfort settings, confidence-labelled support clusters, a live lesson preview, read-aloud controls, and a persistent ten-minute focus timer. Choices are available without playing games. Three real sessions of the same game can raise its demo confidence label to Medium; simulations remain Low and sensory comfort is never inferred. This rule is not validated. Settings never change rewards or employer-visible data. Teacher and parent integrations remain future features; Phase 6 connects the roadmap preferences.
+Phase 5 adds optional comfort settings, confidence-labelled support clusters, a live lesson preview, read-aloud controls, and a persistent ten-minute focus timer. Choices are available without playing games. Three real sessions of the same game can raise its demo confidence label to Medium; simulations remain Low and sensory comfort is never inferred. This rule is not validated. Settings never change rewards or employer-visible data. Later phases connect these choices to the plan, parent summary and private teacher view.
 
 Run `node --test tests/comfort.test.cjs` for confidence, persistence, timer and reward checks. Browser checks also cover adapted lessons, global preferences, Hindi audio fallback and the timer at 360px.
 
