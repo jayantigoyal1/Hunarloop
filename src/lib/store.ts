@@ -38,6 +38,10 @@ export type OnboardingConsent = {
 };
 
 export type ComfortSettings = {
+  calmMode: PreferenceChoice;
+  readingFont: PreferenceChoice;
+  focusTimer: PreferenceChoice;
+  alternativeResponses: PreferenceChoice;
   audioInstructions: PreferenceChoice;
   stepByStepTasks: PreferenceChoice;
   visualExamples: PreferenceChoice;
@@ -88,6 +92,7 @@ type AppData = {
   dismissedSkillSignals: string[];
   learningPreferences: string[];
   shareWithTeacher: boolean;
+  focusTimerState: { remainingMs: number; endsAt: number | null };
 };
 
 type AppActions = {
@@ -118,6 +123,10 @@ type AppActions = {
   addEvidence: (items: PassportEvidence[]) => void;
   renameEvidence: (id: string, name: string) => void;
   removeEvidence: (id: string) => void;
+  startFocusTimer: () => void;
+  pauseFocusTimer: () => void;
+  resetFocusTimer: () => void;
+  finishFocusTimer: () => void;
 };
 
 type AppState = AppData & AppActions;
@@ -150,6 +159,10 @@ function createInitialData(): AppData {
     gameResults: [],
     gameSessionsCount: 0,
     comfortSettings: {
+      calmMode: "pending",
+      readingFont: "pending",
+      focusTimer: "pending",
+      alternativeResponses: "pending",
       audioInstructions: "pending",
       stepByStepTasks: "pending",
       visualExamples: "pending",
@@ -167,6 +180,7 @@ function createInitialData(): AppData {
     dismissedSkillSignals: [],
     learningPreferences: [],
     shareWithTeacher: false,
+    focusTimerState: { remainingMs: 600000, endsAt: null },
   };
 }
 
@@ -176,9 +190,9 @@ export const useAppStore = create<AppState>()(
       ...createInitialData(),
       setLanguage: (language) => set({ language }),
       toggleLanguage: () => set((state) => ({ language: state.language === "en" ? "hi" : "en" })),
-      setCalmMode: (calmMode) => set({ calmMode }),
-      setDyslexicFont: (dyslexicFont) => set({ dyslexicFont }),
-      setAudioFirst: (audioFirst) => set({ audioFirst }),
+      setCalmMode: (calmMode) => set((state) => ({ calmMode, comfortSettings: { ...state.comfortSettings, calmMode: calmMode ? "accepted" : "rejected" } })),
+      setDyslexicFont: (dyslexicFont) => set((state) => ({ dyslexicFont, comfortSettings: { ...state.comfortSettings, readingFont: dyslexicFont ? "accepted" : "rejected" } })),
+      setAudioFirst: (audioFirst) => set((state) => ({ audioFirst, comfortSettings: { ...state.comfortSettings, audioInstructions: audioFirst ? "accepted" : "rejected" } })),
       setOnboardingDone: (onboardingDone) => set({ onboardingDone }),
       setOnboardingConsent: (consent) =>
         set((state) => ({ onboardingConsent: { ...state.onboardingConsent, ...consent } })),
@@ -189,6 +203,7 @@ export const useAppStore = create<AppState>()(
           calmMode: state.calmMode,
           dyslexicFont: state.dyslexicFont,
           audioFirst: state.audioFirst,
+          comfortSettings: { ...createInitialData().comfortSettings, calmMode: state.comfortSettings.calmMode, readingFont: state.comfortSettings.readingFont, audioInstructions: state.comfortSettings.audioInstructions },
           profile: {
             name: sampleStudent.name,
             village: sampleStudent.village,
@@ -236,7 +251,13 @@ export const useAppStore = create<AppState>()(
       },
       clearGameResults: () => set({ gameResults: [], gameSessionsCount: 0 }),
       setComfortSetting: (setting, choice) =>
-        set((state) => ({ comfortSettings: { ...state.comfortSettings, [setting]: choice } })),
+        set((state) => ({
+          comfortSettings: { ...state.comfortSettings, [setting]: choice },
+          ...(setting === "calmMode" ? { calmMode: choice === "accepted" } : {}),
+          ...(setting === "readingFont" ? { dyslexicFont: choice === "accepted" } : {}),
+          ...(setting === "audioInstructions" ? { audioFirst: choice === "accepted" } : {}),
+          ...(setting === "focusTimer" && choice !== "accepted" ? { focusTimerState: { remainingMs: state.focusTimerState.endsAt === null ? state.focusTimerState.remainingMs : Math.max(0, state.focusTimerState.endsAt - Date.now()), endsAt: null } } : {}),
+        })),
       setChosenCareerId: (chosenCareerId) => set({ chosenCareerId }),
       toggleSavedOpportunity: (opportunityId) =>
         set((state) => ({
@@ -262,9 +283,26 @@ export const useAppStore = create<AppState>()(
       addEvidence: (items) => set((state) => ({ passportEvidence: [...state.passportEvidence, ...items] })),
       renameEvidence: (id, name) => set((state) => ({ passportEvidence: state.passportEvidence.map((item) => item.id === id ? { ...item, name } : item) })),
       removeEvidence: (id) => set((state) => ({ passportEvidence: state.passportEvidence.filter((item) => item.id !== id) })),
+      startFocusTimer: () => set((state) => state.comfortSettings.focusTimer !== "accepted" || state.focusTimerState.endsAt !== null ? state : ({ focusTimerState: { remainingMs: state.focusTimerState.remainingMs || 600000, endsAt: Date.now() + (state.focusTimerState.remainingMs || 600000) } })),
+      pauseFocusTimer: () => set((state) => ({ focusTimerState: { remainingMs: state.focusTimerState.endsAt === null ? state.focusTimerState.remainingMs : Math.max(0, state.focusTimerState.endsAt - Date.now()), endsAt: null } })),
+      resetFocusTimer: () => set({ focusTimerState: { remainingMs: 600000, endsAt: null } }),
+      finishFocusTimer: () => set((state) => state.focusTimerState.endsAt !== null && state.focusTimerState.endsAt <= Date.now() ? { focusTimerState: { remainingMs: 0, endsAt: null } } : state),
     }),
     {
       name: "hunarloop-preferences",
+      merge: (persisted, current) => {
+        const previous = (persisted ?? {}) as Partial<AppData>;
+        const comfortSettings = { ...current.comfortSettings, ...previous.comfortSettings };
+        if (!previous.comfortSettings?.calmMode && previous.calmMode) comfortSettings.calmMode = "accepted";
+        if (!previous.comfortSettings?.readingFont && previous.dyslexicFont) comfortSettings.readingFont = "accepted";
+        return {
+          ...current, ...previous, comfortSettings,
+          focusTimerState: { ...current.focusTimerState, ...previous.focusTimerState },
+          calmMode: comfortSettings.calmMode === "accepted",
+          dyslexicFont: comfortSettings.readingFont === "accepted",
+          audioFirst: comfortSettings.audioInstructions === "pending" ? (previous.audioFirst ?? current.audioFirst) : comfortSettings.audioInstructions === "accepted",
+        };
+      },
       storage: createJSONStorage(() => ({
         getItem: (name) => {
           try { const value = localStorage.getItem(name); deviceStorageAvailable = true; return value; }
@@ -301,6 +339,7 @@ export const useAppStore = create<AppState>()(
         dismissedSkillSignals: state.dismissedSkillSignals,
         learningPreferences: state.learningPreferences,
         shareWithTeacher: state.shareWithTeacher,
+        focusTimerState: state.focusTimerState,
       }),
     },
   ),

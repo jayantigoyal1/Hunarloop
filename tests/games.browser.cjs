@@ -88,7 +88,7 @@ test("Skip never completes a session and demo control unlocks comfort choices", 
   await expect(page).toHaveURL(/\/games\/results$/);
   expect((await saved(page)).gameSessionsCount).toBe(3);
   await page.getByRole("link", { name: "See learning preferences" }).click();
-  await expect(page.getByRole("button", { name: "Accept", exact: true })).toHaveCount(3);
+  await expect(page.getByRole("button", { name: "Accept", exact: true })).toHaveCount(6);
   await page.getByRole("button", { name: "Accept", exact: true }).first().click();
   await page.reload();
   await expect(page.getByRole("button", { name: "Accept", exact: true }).first()).toHaveAttribute("aria-pressed", "true");

@@ -21,6 +21,8 @@ body {
 }
 button, a { -webkit-tap-highlight-color: transparent; }
 button:focus-visible, a:focus-visible { outline: 3px solid #e57c62; outline-offset: 3px; }
+input:focus-visible, select:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 3px solid #e57c62; outline-offset: 3px; }
+.lesson-original { font-family: Arial, sans-serif; letter-spacing: normal; }
 .font-dyslexic { font-family: var(--font-open-dyslexic); letter-spacing: 0.035em; line-height: 1.7; }
 .listening-wave { display: inline-flex; height: 20px; align-items: center; gap: 2px; }
 .listening-wave i { display: block; width: 3px; height: 7px; border-radius: 999px; background: currentColor; animation: listening-wave 0.85s ease-in-out infinite alternate; }

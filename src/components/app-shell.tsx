@@ -7,6 +7,8 @@ import { BriefcaseBusiness, Gift, House, IdCard, Settings2, Wifi, WifiOff } from
 import { useT } from "@/lib/i18n";
 import { useAppStore } from "@/lib/store";
 import { Badge } from "@/components/ui";
+import { FocusTimer } from "@/components/focus-timer";
+import { ReadAloud } from "@/components/read-aloud";
 
 const studentTabs = [
   { href: "/", key: "nav.home", Icon: House },
@@ -26,6 +28,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const dyslexicFont = useAppStore((state) => state.dyslexicFont);
   const setDyslexicFont = useAppStore((state) => state.setDyslexicFont);
   const audioFirst = useAppStore((state) => state.audioFirst);
+  const focusTimer = useAppStore((state) => state.comfortSettings.focusTimer === "accepted");
   const setAudioFirst = useAppStore((state) => state.setAudioFirst);
   const offlineMode = useAppStore((state) => state.offlineMode);
   const setOfflineMode = useAppStore((state) => state.setOfflineMode);
@@ -48,7 +51,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, [language]);
 
   return (
-    <div className={`min-h-screen bg-paper ${calmMode ? "calm" : ""} ${dyslexicFont ? "font-dyslexic" : ""}`}>
+    <div className="min-h-screen bg-paper">
       <div className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-paper">
         <header className="sticky top-0 z-20 border-b border-teal-100 bg-paper/95 px-3 py-2 backdrop-blur">
           <div className="flex min-h-12 items-center justify-between gap-1.5">
@@ -75,7 +78,11 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
           </div>
         </header>
-        <main className="flex-1 px-3 pb-5 pt-3">{children}</main>
+        <main className="flex-1 space-y-3 px-3 pb-5 pt-3">
+          {focusTimer && pathname !== "/comfort" && !pathname.startsWith("/games") ? <FocusTimer compact /> : null}
+          {audioFirst && !["/", "/onboarding", "/comfort"].includes(pathname) && !pathname.startsWith("/games") ? <ReadAloud label={translate("comfort.readPage")} text={() => document.querySelector<HTMLElement>("[data-page-content]")?.innerText ?? ""} /> : null}
+          <div data-page-content>{children}</div>
+        </main>
         {showTabs ? (
           <nav aria-label="Student navigation" className="sticky bottom-0 z-20 border-t border-teal-100 bg-white/95 px-1 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-1 backdrop-blur">
             <ul className="grid grid-cols-5 gap-0.5">
