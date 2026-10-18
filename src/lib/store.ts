@@ -3,6 +3,8 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { sampleStudent } from "@/data/student";
+import { careers } from "@/data/careers";
+import { validMilestone, type LessonFormat } from "@/data/roadmap";
 import { demoMetrics, sessionId, skillSignals, type GameMetrics, type GameId } from "@/lib/game-engine";
 
 let deviceStorageAvailable = true;
@@ -82,6 +84,9 @@ type AppData = {
   gameSessionsCount: number;
   comfortSettings: ComfortSettings;
   chosenCareerId: string | null;
+  completedMilestoneIds: string[];
+  rewardedMilestoneIds: string[];
+  roadmapFormat: LessonFormat | null;
   savedOpportunityIds: string[];
   points: number;
   earnedBadges: string[];
@@ -110,6 +115,8 @@ type AppActions = {
   simulateThreeSessions: () => void;
   setComfortSetting: (setting: keyof ComfortSettings, choice: PreferenceChoice) => void;
   setChosenCareerId: (careerId: string | null) => void;
+  setMilestoneComplete: (id: string, complete: boolean) => void;
+  setRoadmapFormat: (format: LessonFormat) => void;
   toggleSavedOpportunity: (opportunityId: string) => void;
   addPoints: (amount: number) => void;
   awardBadge: (badgeId: string) => void;
@@ -170,6 +177,9 @@ function createInitialData(): AppData {
       offlineMaterials: "pending",
     },
     chosenCareerId: null,
+    completedMilestoneIds: [],
+    rewardedMilestoneIds: [],
+    roadmapFormat: null,
     savedOpportunityIds: [],
     points: 0,
     earnedBadges: [],
@@ -259,6 +269,18 @@ export const useAppStore = create<AppState>()(
           ...(setting === "focusTimer" && choice !== "accepted" ? { focusTimerState: { remainingMs: state.focusTimerState.endsAt === null ? state.focusTimerState.remainingMs : Math.max(0, state.focusTimerState.endsAt - Date.now()), endsAt: null } } : {}),
         })),
       setChosenCareerId: (chosenCareerId) => set({ chosenCareerId }),
+      setRoadmapFormat: (roadmapFormat) => set({ roadmapFormat }),
+      setMilestoneComplete: (id, complete) => set((state) => {
+        if (!validMilestone(id, careers.map((career) => career.id))) return state;
+        const completed = state.completedMilestoneIds.includes(id);
+        if (completed === complete) return state;
+        const reward = complete && !state.rewardedMilestoneIds.includes(id);
+        return {
+          completedMilestoneIds: complete ? [...state.completedMilestoneIds, id] : state.completedMilestoneIds.filter((item) => item !== id),
+          rewardedMilestoneIds: reward ? [...state.rewardedMilestoneIds, id] : state.rewardedMilestoneIds,
+          points: state.points + (reward ? 5 : 0),
+        };
+      }),
       toggleSavedOpportunity: (opportunityId) =>
         set((state) => ({
           savedOpportunityIds: state.savedOpportunityIds.includes(opportunityId)
@@ -329,6 +351,9 @@ export const useAppStore = create<AppState>()(
         gameSessionsCount: state.gameSessionsCount,
         comfortSettings: state.comfortSettings,
         chosenCareerId: state.chosenCareerId,
+        completedMilestoneIds: state.completedMilestoneIds,
+        rewardedMilestoneIds: state.rewardedMilestoneIds,
+        roadmapFormat: state.roadmapFormat,
         savedOpportunityIds: state.savedOpportunityIds,
         points: state.points,
         earnedBadges: state.earnedBadges,

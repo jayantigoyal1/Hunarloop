@@ -4,12 +4,14 @@ import { useAppStore, type Language } from "@/lib/store";
 import { passportMessages } from "@/lib/passport-i18n";
 import { gamesMessages } from "@/lib/games-i18n";
 import { comfortMessages } from "@/lib/comfort-i18n";
+import { pathwayMessages } from "@/lib/pathway-i18n";
 
 const messages = {
   en: {
     ...passportMessages.en,
     ...gamesMessages.en,
     ...comfortMessages.en,
+    ...pathwayMessages.en,
     "brand.name": "HunarLoop", "header.online": "Online", "header.offline": "Offline", "header.calm": "Calm mode", "header.settings": "Settings", "header.font": "Reading font", "header.audio": "Speak questions", "header.offlineDemo": "Offline demo",
     "nav.home": "Home", "nav.passport": "Passport", "nav.careers": "Careers", "nav.opportunities": "Opportunities", "nav.rewards": "Rewards",
     "home.eyebrow": "YOUR SKILLS. YOUR FUTURE.", "home.title": "Every strength has a next step.",
@@ -68,6 +70,7 @@ const messages = {
     ...passportMessages.hi,
     ...gamesMessages.hi,
     ...comfortMessages.hi,
+    ...pathwayMessages.hi,
     "brand.name": "हुनरLoop", "header.online": "ऑनलाइन", "header.offline": "ऑफ़लाइन", "header.calm": "शांत मोड", "header.settings": "सेटिंग्स", "header.font": "पढ़ने का फ़ॉन्ट", "header.audio": "सवाल सुनाएं", "header.offlineDemo": "ऑफ़लाइन डेमो",
     "nav.home": "होम", "nav.passport": "पासपोर्ट", "nav.careers": "करियर", "nav.opportunities": "अवसर", "nav.rewards": "इनाम",
     "home.eyebrow": "आपका हुनर। आपका भविष्य।", "home.title": "हर खूबी का अगला कदम है।",
