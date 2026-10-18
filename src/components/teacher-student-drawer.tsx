@@ -31,9 +31,9 @@ export function TeacherStudentDrawer({ student, onClose }: { student: TeacherStu
   const interests = student.id === "asha-demo" ? state.profile.interests : desk.interests.map((item) => item[state.language]);
   const skills = student.id === "asha-demo" ? state.profile.skills : desk.skills.map((item) => item[state.language]);
   const goal = student.id === "asha-demo" ? state.profile.goals.join(", ") : desk.goal[state.language];
-  return <dialog ref={dialog} aria-labelledby="teacher-detail-title" onCancel={(event) => { event.preventDefault(); onClose(); }} className="fixed inset-y-0 right-0 m-0 ml-auto h-dvh max-h-dvh w-full max-w-2xl border-0 bg-paper p-0 text-ink shadow-xl backdrop:bg-black/50 open:flex open:flex-col">
+  return <dialog ref={dialog} aria-labelledby="teacher-detail-title" onCancel={(event) => { event.preventDefault(); onClose(); }} className="fixed inset-y-0 right-0 m-0 ml-auto h-dvh max-h-dvh w-screen max-w-full overflow-x-hidden border-0 bg-paper p-0 text-ink shadow-xl backdrop:bg-black/50 open:flex open:flex-col sm:max-w-2xl">
     <div className="flex shrink-0 items-center justify-between gap-2 border-b border-teal-100 bg-white p-3"><h2 id="teacher-detail-title" className="text-xl font-extrabold">{t("teacher.details")}: {student.name}</h2><button type="button" autoFocus onClick={onClose} aria-label={t("teacher.close")} className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-teal-100"><X aria-hidden="true" /></button></div>
-    <div className="space-y-5 overflow-y-auto overscroll-contain p-4 pb-8">
+    <div className="min-w-0 space-y-5 overflow-x-hidden overflow-y-auto overscroll-contain p-4 pb-8">
       <DemoBadge />
       {student.weeklyCompleted ? <p className="text-sm font-semibold">{t("teacher.weekly")}: {student.weeklyEngagement.join(" → ")}<br />{t("teacher.weeklyCompleted")}: {student.weeklyCompleted.join(" → ")}</p> : null}
       <Card className="space-y-3"><h3 className="text-lg font-bold">{t("teacher.signal")}</h3><Badge>{t("teacher." + desk.signal)}</Badge><p className="text-sm leading-6">{desk.signalReason[state.language]}</p><p className="text-sm leading-6">{t("teacher.uncertain")}</p><p className="font-semibold">{t("teacher.suggested")}: {desk.suggestedAction[state.language]}</p></Card>

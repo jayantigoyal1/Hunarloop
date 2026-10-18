@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, BookOpen, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Card, DemoBadge } from "@/components/ui";
 import { HomeDashboard } from "@/components/home-dashboard";
@@ -23,7 +23,8 @@ export default function WelcomePage() {
 
   return (
     <div className="mx-auto flex max-w-sm flex-col gap-4 pb-4 pt-2">
-      <Card tone="hero" className="space-y-4 p-5">
+      <Card tone="hero" className="relative space-y-5 overflow-hidden p-6">
+        <div className="absolute -right-14 -top-14 h-40 w-40 rounded-full bg-sun/25" aria-hidden="true" />
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-3">
             <span className="grid h-12 w-12 place-items-center rounded-xl bg-teal-700 text-xl font-black text-white" aria-hidden="true">ह</span>
@@ -34,7 +35,8 @@ export default function WelcomePage() {
           </div>
           <DemoBadge />
         </div>
-        <h1 className="text-2xl font-black leading-tight text-ink">{translate("welcome.tagline")}</h1>
+        <div className="relative mx-auto grid h-40 w-52 place-items-center rounded-[45%] bg-white/70" aria-hidden="true"><BookOpen size={84} strokeWidth={1.35} className="text-teal-700" /><span className="absolute right-5 top-5 text-3xl text-sun">✦</span></div>
+        <h1 className="relative text-3xl font-black leading-tight tracking-tight text-ink">{translate("welcome.tagline")}</h1>
         <p className="text-sm leading-5 text-ink/75">{translate("home.description")}</p>
       </Card>
 

@@ -5,16 +5,16 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        ink: "#193a3d",
-        paper: "#f4faf8",
-        teal: { 50: "#e9f7f4", 100: "#ccece5", 500: "#168a7e", 600: "#087568", 700: "#075d55" },
-        sun: "#e8cd82",
+        ink: "#173f32",
+        paper: "#fbfaf2",
+        teal: { 50: "#edf2e5", 100: "#dce7d3", 500: "#4f7b64", 600: "#386550", 700: "#285744", 800: "#1e4637" },
+        sun: "#efd477",
         coral: "#c87860",
         clay: "#a85f49",
       },
-      borderRadius: { card: "0.5rem" },
+      borderRadius: { card: "1.5rem" },
       fontFamily: { sans: ["var(--font-geist-sans)", "Noto Sans Devanagari", "sans-serif"] },
-      boxShadow: { soft: "0 4px 16px rgba(25, 58, 61, 0.06)" },
+      boxShadow: { soft: "0 10px 32px rgba(23, 63, 50, 0.07)" },
     },
   },
   plugins: [],

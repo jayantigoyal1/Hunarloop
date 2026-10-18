@@ -4,8 +4,8 @@
 
 :root {
   color-scheme: light;
-  --background: #f4faf8;
-  --foreground: #193a3d;
+  --background: #fbfaf2;
+  --foreground: #173f32;
   --font-open-dyslexic: "OpenDyslexic", "Comic Sans MS", sans-serif;
 }
 
@@ -14,12 +14,13 @@ html { min-height: 100%; background: var(--background); }
 body {
   min-height: 100vh;
   margin: 0;
-  background: var(--background);
+  background: radial-gradient(circle at 8% 2%, rgb(220 231 211 / 0.72), transparent 25rem), var(--background);
   color: var(--foreground);
   font-family: Arial, "Noto Sans Devanagari", sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 button, a { -webkit-tap-highlight-color: transparent; }
+.bg-teal-700 { background-color: #285744 !important; }
 button:focus-visible, a:focus-visible { outline: 3px solid #e57c62; outline-offset: 3px; }
 input:focus-visible, select:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 3px solid #e57c62; outline-offset: 3px; }
 input::placeholder, textarea::placeholder { color: #4a6364 !important; opacity: 1; }

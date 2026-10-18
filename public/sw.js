@@ -1,5 +1,5 @@
 /* Public app shell only. Student answers and localStorage are never cached here. */
-const CACHE = "hunarloop-shell-v1";
+const CACHE = "hunarloop-shell-v2";
 const ROUTES = ["/", "/onboarding", "/passport", "/games", "/games/results", "/comfort", "/careers", "/roadmap", "/opportunities", "/rewards", "/circles", "/parent", "/teacher"];
 const PUBLIC_FILES = ["/manifest.json", "/icons/hunarloop.svg", "/icons/hunarloop-192.png", "/icons/hunarloop-512.png", "/offline.html"];
 const ALLOWED = new Set(ROUTES);

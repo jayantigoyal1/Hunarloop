@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   icons: { icon: [{ url: "/icons/hunarloop.svg", type: "image/svg+xml" }, { url: "/icons/hunarloop-192.png", sizes: "192x192", type: "image/png" }], apple: "/icons/hunarloop-192.png" },
 };
 
-export const viewport: Viewport = { themeColor: "#0f766e" };
+export const viewport: Viewport = { themeColor: "#285744" };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (

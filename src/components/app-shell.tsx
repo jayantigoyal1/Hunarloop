@@ -63,22 +63,22 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, [language]);
 
   return (
-    <div className="min-h-screen bg-paper">
-      <div className={`mx-auto flex min-h-screen w-full flex-col bg-paper ${pathname === "/teacher" ? "max-w-6xl" : "max-w-md"}`}>
+    <div className="min-h-screen overflow-x-clip bg-paper">
+      <div className={`mx-auto flex min-h-screen min-w-0 w-full max-w-full flex-col bg-paper/95 ${pathname === "/teacher" ? "lg:max-w-6xl" : "sm:max-w-md"}`}>
         <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50 focus:flex focus:min-h-12 focus:items-center focus:rounded-xl focus:bg-white focus:px-4 focus:font-bold focus:text-teal-800">{translate("a11y.skip")}</a>
-        <header className="sticky top-0 z-20 border-b border-teal-100 bg-paper/95 px-3 py-2 backdrop-blur">
-          <div className="flex min-h-12 items-center justify-between gap-1.5">
-            <Link href="/" className="flex min-h-12 items-center gap-1.5 rounded-lg text-ink" aria-label={`${translate("brand.name")} · ${translate("nav.home")}`}>
-              <span className="grid h-8 w-8 place-items-center rounded-lg bg-teal-600 text-sm font-black text-white">ह</span>
-              <span className="text-base font-extrabold">{translate("brand.name")}</span>
+        <header className="sticky top-0 z-20 min-w-0 border-b border-teal-100/80 bg-paper/90 px-3 py-2 backdrop-blur-md">
+          <div className="flex min-h-12 min-w-0 items-center justify-between gap-1">
+            <Link href="/" className="flex min-h-12 min-w-0 items-center gap-1.5 rounded-lg text-ink" aria-label={`${translate("brand.name")} · ${translate("nav.home")}`}>
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-teal-700 text-sm font-black text-white shadow-sm">ह</span>
+              <span className="truncate text-base font-extrabold max-[339px]:hidden">{translate("brand.name")}</span>
             </Link>
-            <div className="flex items-center gap-1.5">
+            <div className="flex shrink-0 items-center gap-1.5">
               <Badge className={`max-w-24 gap-1 ${available ? "bg-teal-50" : "bg-coral/15 text-ink"}`}>
                 {available ? <Wifi size={14} className="shrink-0" aria-hidden="true" /> : <WifiOff size={14} className="shrink-0" aria-hidden="true" />}<span className="truncate" role="status">{translate(!online ? "header.offline" : simulated ? "header.simulated" : "header.online")}</span>
               </Badge>
               <details className="group relative">
                 <summary className="grid min-h-12 min-w-12 cursor-pointer list-none place-items-center rounded-lg text-teal-700 hover:bg-teal-50 [&::-webkit-details-marker]:hidden" aria-label={translate("header.settings")} title={translate("header.settings")}><Settings2 size={20} aria-hidden="true" /></summary>
-                <div className="absolute right-0 top-12 z-30 w-64 space-y-1 rounded-xl border border-teal-100 bg-white p-3 shadow-soft">
+                <div className="absolute right-0 top-12 z-30 w-64 max-w-[calc(100vw-1.5rem)] space-y-1 rounded-2xl border border-teal-100 bg-white p-3 shadow-soft">
                   {[
                     { key: "header.calm", checked: calmMode, change: setCalmMode },
                     { key: "header.font", checked: dyslexicFont, change: setDyslexicFont },
@@ -90,15 +90,15 @@ export function AppShell({ children }: { children: ReactNode }) {
               <button type="button" onClick={toggleLanguage} className="min-h-12 min-w-12 rounded-lg border border-teal-100 bg-white px-2 text-sm font-extrabold text-ink" aria-label={language === "en" ? "हिन्दी में बदलें" : "Switch to English"}>{language === "en" ? "हिं" : "EN"}</button>
             </div>
           </div>
-          <nav aria-label={translate("role.label")} className="mt-1 grid grid-cols-3 gap-1 border-t border-teal-100 pt-2">
-            {roleLinks.map(({ href, key, active }) => <Link key={href} href={href} aria-current={active ? "page" : undefined} className={`flex min-h-12 items-center justify-center rounded-xl px-2 text-center text-sm font-bold ${active ? "bg-teal-700 text-white" : "bg-white text-teal-800 hover:bg-teal-50"}`}>{translate(key)}</Link>)}
+          <nav aria-label={translate("role.label")} className="mt-1 grid min-w-0 grid-cols-3 gap-1 rounded-2xl bg-teal-50 p-1">
+            {roleLinks.map(({ href, key, active }) => <Link key={href} href={href} aria-current={active ? "page" : undefined} className={`flex min-h-11 min-w-0 items-center justify-center overflow-hidden rounded-xl px-1.5 text-center text-[13px] font-bold leading-tight ${active ? "bg-teal-700 text-white shadow-sm" : "text-teal-800 hover:bg-white"}`}><span className="max-w-full truncate">{translate(key)}</span></Link>)}
           </nav>
           {!available ? <p role="status" className="mt-2 rounded-lg bg-sun/25 p-2 text-xs leading-5 text-ink">{translate("header.offlineHelp")}</p> : null}
         </header>
-        <main id="main-content" tabIndex={-1} className="flex-1 space-y-3 px-3 pb-5 pt-3">
+        <main id="main-content" tabIndex={-1} className="min-w-0 flex-1 space-y-3 overflow-x-clip px-3 pb-5 pt-4">
           {focusTimer && pathname !== "/comfort" && !pathname.startsWith("/games") ? <FocusTimer compact /> : null}
           {audioFirst && !["/", "/onboarding", "/comfort", "/parent"].includes(pathname) && !pathname.startsWith("/games") ? <ReadAloud label={translate("comfort.readPage")} text={() => document.querySelector<HTMLElement>("[data-page-content]")?.innerText ?? ""} /> : null}
-          <div key={pathname} data-page-content className="page-enter">{children}</div>
+          <div key={pathname} data-page-content className="page-enter min-w-0 max-w-full">{children}</div>
         </main>
         {!pathname.startsWith("/games") && pathname !== "/onboarding" ? <DemoGuide /> : null}
         {showTabs ? (

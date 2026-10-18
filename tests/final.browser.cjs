@@ -8,8 +8,12 @@ test("post-onboarding home and six-step demo guide work at mobile width", async 
   await expect(page.getByRole("main")).toBeFocused();
   await page.getByRole("button", { name: "Skip to demo student" }).click();
   await page.getByRole("link", { name: "Home", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "Your journey today" })).toBeVisible();
-  await expect(page.getByRole("img", { name: /Journey steps explored/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "My learning" })).toBeVisible();
+  await expect(page.getByRole("img", { name: /Journey progress/ })).toBeVisible();
+  await page.getByRole("link", { name: /Profile questions/ }).click();
+  await page.getByRole("button", { name: "Open profile questions" }).click();
+  await expect(page.getByPlaceholder("Type your answer here")).toHaveValue("Asha");
+  await page.goto("/");
   await expect(page.getByRole("heading", { name: "Today's small task" })).toBeVisible();
   await page.getByRole("button", { name: "Demo guide" }).click();
   const guide = page.getByRole("dialog", { name: "Explore HunarLoop" });
@@ -34,7 +38,7 @@ test("manual offline pauses fresh career analysis and live voice input", async (
   await page.goto("/onboarding");
   await page.getByRole("checkbox", { name: /I agree to save my answers/ }).check();
   await page.getByRole("checkbox", { name: "I have read this notice." }).check();
-  await page.getByRole("button", { name: "Continue" }).click();
+  await page.getByRole("button", { name: "Open profile questions" }).click();
   await expect(page.getByText("Live voice input pauses offline. Choose an option or type your answer.")).toBeVisible();
   await expect(page.getByRole("button", { name: "Speak your answer" })).toBeDisabled();
   await expect(page.getByPlaceholder("Type your answer here")).toBeEnabled();
@@ -47,7 +51,7 @@ test("installed service worker opens cached pages without a network", async ({ p
     await navigator.serviceWorker.ready;
     return Boolean(navigator.serviceWorker.controller);
   }, null, { timeout: 30000 });
-  const cached = await page.evaluate(async () => (await caches.open("hunarloop-shell-v1")).keys().then((keys) => keys.map((key) => new URL(key.url).pathname)));
+  const cached = await page.evaluate(async () => (await caches.open("hunarloop-shell-v2")).keys().then((keys) => keys.map((key) => new URL(key.url).pathname)));
   expect(cached).toContain("/passport");
   expect(cached).toContain("/icons/hunarloop-192.png");
   expect(cached.some((path) => path.startsWith("/_next/static/"))).toBe(true);

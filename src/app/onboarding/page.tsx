@@ -82,11 +82,18 @@ export default function OnboardingPage() {
 	const router = useRouter();
 	const language = useAppStore((state) => state.language);
 	const consent = useAppStore((state) => state.onboardingConsent);
+	const profile = useAppStore((state) => state.profile);
+	const onboardingDone = useAppStore((state) => state.onboardingDone);
 	const audioFirst = useAppStore((state) => state.audioFirst);
 	const setConsent = useAppStore((state) => state.setOnboardingConsent);
 	const { available } = useConnection();
 	const [stage, setStage] = useState<"consent" | "questions" | "building">("consent");
-	const [answers, setAnswers] = useState<OnboardingAnswers>(emptyAnswers);
+	const [answers, setAnswers] = useState<OnboardingAnswers>(() => onboardingDone ? {
+		name: profile.name, village: profile.village, district: profile.district,
+		interests: profile.interests, enjoys: profile.enjoys, goals: profile.goals,
+		budget: profile.constraints.budget, transport: profile.constraints.transport,
+		device: profile.constraints.device, connectivity: profile.constraints.connectivity,
+	} : emptyAnswers);
 	const [questionIndex, setQuestionIndex] = useState(0);
 	const [currentAnswer, setCurrentAnswer] = useState<Answer>("");
 	const [speechSupported, setSpeechSupported] = useState(false);
@@ -249,7 +256,7 @@ export default function OnboardingPage() {
 	if (stage === "consent") {
 		return <div className="mx-auto max-w-sm space-y-3 pb-3">
 			<button type="button" onClick={() => router.push("/")} className="inline-flex min-h-12 items-center gap-2 rounded-lg px-1 text-sm font-bold text-teal-700"><ArrowLeft size={18} aria-hidden="true" />{tForLanguage("common.back")}</button>
-			<div className="space-y-1"><Badge>{tForLanguage("common.demo")}</Badge><h1 className="text-2xl font-black text-ink">{tForLanguage("onboarding.consentTitle")}</h1><p className="text-sm leading-5 text-ink/75">{tForLanguage("onboarding.consentIntro")}</p></div>
+			<div className="space-y-2"><div className="flex flex-wrap gap-2"><Badge>{tForLanguage("onboarding.questionsLabel")}</Badge><Badge>{tForLanguage("common.demo")}</Badge></div><h1 className="text-3xl font-black tracking-tight text-ink">{tForLanguage("onboarding.consentTitle")}</h1><p className="text-sm leading-6 text-ink/75">{tForLanguage("onboarding.consentIntro")}</p></div>
 			<Card className="space-y-3 p-4">
 				<label className="flex min-h-12 cursor-pointer items-start gap-3 text-sm font-semibold leading-5 text-ink"><input type="checkbox" className="mt-0.5 h-5 w-5 shrink-0 accent-teal-700" checked={consent.profile} onChange={(event) => setConsent({ profile: event.target.checked })} /><span>{tForLanguage("onboarding.profileConsent")}</span></label>
 				<label className="flex min-h-12 cursor-pointer items-start gap-3 border-t border-teal-100 pt-3 text-sm font-semibold leading-5 text-ink"><input type="checkbox" className="mt-0.5 h-5 w-5 shrink-0 accent-teal-700" checked={consent.games} onChange={(event) => setConsent({ games: event.target.checked })} /><span>{tForLanguage("onboarding.gameConsent")}</span></label>
@@ -258,11 +265,11 @@ export default function OnboardingPage() {
 				<p className="text-sm leading-5 text-ink/85">{tForLanguage("onboarding.guardianNotice")}</p>
 				<label className="flex min-h-12 cursor-pointer items-center gap-3 border-t border-clay/15 pt-2 text-sm font-bold text-ink"><input type="checkbox" className="h-5 w-5 shrink-0 accent-teal-700" checked={consent.guardianNoticeRead} onChange={(event) => setConsent({ guardianNoticeRead: event.target.checked })} /><span>{tForLanguage("onboarding.guardianRead")}</span></label>
 			</Card>
-			<button type="button" disabled={!consent.profile || !consent.guardianNoticeRead} onClick={() => { setCurrentAnswer(emptyAnswer(questions[0])); setStage("questions"); }} className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-teal-700 px-4 py-3 text-sm font-extrabold text-white disabled:cursor-not-allowed disabled:opacity-45">{tForLanguage("onboarding.continue")}<ArrowRight size={17} aria-hidden="true" /></button>
+			<button type="button" disabled={!consent.profile || !consent.guardianNoticeRead} onClick={() => { setQuestionIndex(0); setCurrentAnswer(answers.name); setStage("questions"); }} className="inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-teal-700 px-4 py-3 text-sm font-extrabold text-white disabled:cursor-not-allowed disabled:opacity-45">{tForLanguage("onboarding.openQuestions")}<ArrowRight size={17} aria-hidden="true" /></button>
 		</div>;
 	}
 
-	return <div className="mx-auto max-w-sm space-y-3 pb-3">
+	return <div className="mx-auto max-w-sm space-y-4 pb-3">
 		<div className="flex items-center justify-between gap-2">
 			<button type="button" onClick={goBack} className="inline-flex min-h-12 items-center gap-2 rounded-lg px-1 text-sm font-bold text-teal-700"><ArrowLeft size={18} aria-hidden="true" />{tForLanguage("onboarding.back")}</button>
 			<span className="text-xs font-bold text-ink/65">{tForLanguage("onboarding.step")} {questionIndex + 1} / {questions.length}</span>
@@ -270,6 +277,7 @@ export default function OnboardingPage() {
 		<div className="h-1.5 overflow-hidden rounded-full bg-teal-100" role="progressbar" aria-valuemin={0} aria-valuemax={questions.length} aria-valuenow={questionIndex + 1} aria-label={tForLanguage("onboarding.step")}>
 			<div className="h-full rounded-full bg-teal-600 transition-[width]" style={{ width: `${((questionIndex + 1) / questions.length) * 100}%` }} />
 		</div>
+		<p className="text-xs font-black uppercase tracking-[0.16em] text-teal-700">{tForLanguage("onboarding.questionsLabel")}</p>
 		<form onSubmit={handleSubmit} className="space-y-3">
 			<Card className="space-y-3 p-4">
 				<div className="flex items-start justify-between gap-2"><h1 className="text-xl font-black leading-tight text-ink">{tForLanguage(question.promptKey)}</h1><button type="button" onClick={speakQuestion} className="grid min-h-12 min-w-12 shrink-0 place-items-center rounded-lg bg-teal-50 text-teal-700" aria-label={tForLanguage("onboarding.speakQuestion")} title={tForLanguage("onboarding.speakQuestion")}><Volume2 size={20} aria-hidden="true" /></button></div>

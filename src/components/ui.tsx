@@ -7,15 +7,15 @@ type CardProps = HTMLAttributes<HTMLDivElement> & { tone?: "default" | "hero" };
 
 export function Button({ variant = "primary", className = "", ...props }: ButtonProps) {
   const styles = {
-    primary: "bg-teal-600 text-white hover:bg-teal-700",
+    primary: "bg-teal-700 text-white shadow-sm hover:bg-teal-800",
     secondary: "border border-teal-700 text-teal-700 hover:bg-teal-50",
     quiet: "text-ink hover:bg-teal-50",
   };
-  return <button className={`inline-flex min-h-12 items-center justify-center gap-2 rounded-xl px-5 py-3 text-base font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${styles[variant]} ${className}`} {...props} />;
+  return <button className={`inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl px-5 py-3 text-base font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${styles[variant]} ${className}`} {...props} />;
 }
 
 export function Card({ tone = "default", className = "", ...props }: CardProps) {
-  const surface = tone === "hero" ? "border-teal-100 bg-teal-50 text-ink" : "border-teal-100 bg-white";
+  const surface = tone === "hero" ? "border-teal-100 bg-teal-50 text-ink" : "border-teal-100/90 bg-white/90";
   return <div className={`rounded-card border p-4 shadow-soft ${surface} ${className}`} {...props} />;
 }
 

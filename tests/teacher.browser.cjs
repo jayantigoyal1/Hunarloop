@@ -1,9 +1,11 @@
 const { test, expect } = require("@playwright/test");
 
 test("teacher view respects sharing, verifies a skill, and saves local actions", async ({ page }, testInfo) => {
+  await page.setViewportSize({ width: 320, height: 740 });
   await page.goto("/");
   await page.getByRole("button", { name: "Skip to demo student" }).click();
   await page.getByRole("link", { name: "Teacher", exact: true }).click();
+  for (const role of ["Student", "Teacher", "Parent"]) await expect(page.getByRole("link", { name: role, exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Class support desk" })).toBeVisible();
   await expect(page.getByText("Support cards are private and never shared with employers.")).toBeVisible();
   await expect(page.getByText("8 students")).toBeVisible();
